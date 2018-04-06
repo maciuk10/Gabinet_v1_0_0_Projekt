@@ -380,12 +380,17 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
     for(int i = 0; i < clientData.length(); i++){
         clientData[i]->setText(index.model()->data(index.model()->index(index.row(), clientData.length() - i - 1), Qt::DisplayRole).toString());
     }
-    WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
+    WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    qDebug() << WorkerID;
     if(WorkerID > 0){
         connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
         connection->OpenConnection();
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id, pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny"));
-
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny WHERE uzytkownik_id="+QString::number(WorkerID)));
+        QStringList results = tableCreator->executeSelect();
+        QList<QLineEdit*> hours = ui->workHoursFields->findChildren<QLineEdit*>();
+        for(int i = 0; i < hours.length(); i++){
+            hours[i]->setText(results[i]);
+        }
         connection->CloseConnection();
         delete connection;
     }

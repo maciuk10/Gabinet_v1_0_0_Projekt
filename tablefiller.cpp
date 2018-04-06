@@ -34,8 +34,20 @@ bool TableFiller::executeInsertUpdateDelete(){
     }
 }
 
-void TableFiller::executeSelect(){
-
+QStringList TableFiller::executeSelect(){
+    QStringList elements;
+    if(!query->exec(sqlCommand)){
+        qDebug() << query->lastError().text();
+        qDebug() << query->lastError().driverText();
+        qDebug() << query->lastError().databaseText();
+    }else {
+        while(query->next()){
+            for(int i = 0; i < query->record().count(); i++){
+                elements.append(query->value(i).toString());
+            }
+        }
+    }
+    return elements;
 }
 
 void TableFiller::setcountOfRows(int value) {

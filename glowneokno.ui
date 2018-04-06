@@ -1376,7 +1376,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
        </layout>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="groupBox_8">
+     <widget class="QGroupBox" name="workHoursFields">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1502,60 +1502,60 @@ font: 10pt &quot;Fira Sans&quot;;</string>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QLineEdit" name="lineEdit_26"/>
+             <widget class="QLineEdit" name="ponod"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_27"/>
+             <widget class="QLineEdit" name="pondo"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
-             <widget class="QLineEdit" name="lineEdit_28"/>
+             <widget class="QLineEdit" name="wtod"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_29"/>
+             <widget class="QLineEdit" name="wtdo"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
-             <widget class="QLineEdit" name="lineEdit_30"/>
+             <widget class="QLineEdit" name="srod"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_31"/>
+             <widget class="QLineEdit" name="srdo"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
-             <widget class="QLineEdit" name="lineEdit_32"/>
+             <widget class="QLineEdit" name="czod"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_33"/>
+             <widget class="QLineEdit" name="czdo"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
-             <widget class="QLineEdit" name="lineEdit_34"/>
+             <widget class="QLineEdit" name="ptod"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_35"/>
+             <widget class="QLineEdit" name="ptdo"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
-             <widget class="QLineEdit" name="lineEdit_36"/>
+             <widget class="QLineEdit" name="sood"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_37"/>
+             <widget class="QLineEdit" name="sodo"/>
             </item>
            </layout>
           </item>

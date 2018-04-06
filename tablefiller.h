@@ -15,7 +15,7 @@ public:
     int getcountOfRows();
     void setcountOfRows(int value);
     bool executeInsertUpdateDelete();
-    void executeSelect();
+    QStringList executeSelect();
     QSqlQueryModel* getSqlQueryModelObject() const;
 
 private:

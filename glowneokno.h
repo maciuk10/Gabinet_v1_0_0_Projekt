@@ -82,7 +82,7 @@ private:
     QSqlQueryModel *model;
     int userID;
     int ClientID;
-    QString WorkerID;
+    int WorkerID;
 };
 
 #endif // GLOWNEOKNO_H
