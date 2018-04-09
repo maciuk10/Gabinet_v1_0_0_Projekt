@@ -73,6 +73,8 @@ private slots:
 
     void on_clearFieldsWorkerBtn_clicked();
 
+    void on_toolButton_clicked();
+
 private:
     Ui::GlowneOkno *ui;
     QSqlQuery *serviceTableQuery;
@@ -82,7 +84,7 @@ private:
     QSqlQueryModel *model;
     int userID;
     int ClientID;
-    int WorkerID;
+    QString WorkerID;
 };
 
 #endif // GLOWNEOKNO_H

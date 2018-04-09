@@ -1388,13 +1388,13 @@ font: 10pt &quot;Fira Sans&quot;;</string>
       <property name="title">
        <string>Godziny pracy:</string>
       </property>
-      <widget class="QGroupBox" name="groupBox_9">
+      <widget class="QGroupBox" name="hoursSchema">
        <property name="geometry">
         <rect>
          <x>270</x>
-         <y>60</y>
+         <y>40</y>
          <width>141</width>
-         <height>161</height>
+         <height>201</height>
         </rect>
        </property>
        <property name="title">
@@ -1403,9 +1403,9 @@ font: 10pt &quot;Fira Sans&quot;;</string>
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>33</x>
-          <y>30</y>
-          <width>77</width>
+          <x>10</x>
+          <y>35</y>
+          <width>91</width>
           <height>112</height>
          </rect>
         </property>
@@ -1440,128 +1440,200 @@ font: 10pt &quot;Fira Sans&quot;;</string>
          </item>
         </layout>
        </widget>
+       <widget class="QPushButton" name="pushButton_20">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>11</x>
+          <y>149</y>
+          <width>91</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="hour_from">
+        <property name="geometry">
+         <rect>
+          <x>15</x>
+          <y>154</y>
+          <width>35</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="hour_to">
+        <property name="geometry">
+         <rect>
+          <x>64</x>
+          <y>154</y>
+          <width>35</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="toolButton">
+        <property name="geometry">
+         <rect>
+          <x>107</x>
+          <y>149</y>
+          <width>30</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="img.qrc">
+          <normaloff>:/gabinet/img_rc/checked.png</normaloff>:/gabinet/img_rc/checked.png</iconset>
+        </property>
+       </widget>
       </widget>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QGroupBox" name="workerHours">
        <property name="geometry">
         <rect>
-         <x>50</x>
-         <y>60</y>
-         <width>187</width>
-         <height>166</height>
+         <x>20</x>
+         <y>40</y>
+         <width>231</width>
+         <height>201</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_22">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_17">
-          <item>
-           <widget class="QLabel" name="label_38">
-            <property name="text">
-             <string>Poniedziałek</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_39">
-            <property name="text">
-             <string>Wtorek</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_40">
-            <property name="text">
-             <string>Środa</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_41">
-            <property name="text">
-             <string>Czwartek</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_42">
-            <property name="text">
-             <string>Piątek</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_43">
-            <property name="text">
-             <string>Sobota</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_16">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLineEdit" name="ponod"/>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="pondo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QLineEdit" name="wtod"/>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="wtdo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_12">
-            <item>
-             <widget class="QLineEdit" name="srod"/>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="srdo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_13">
-            <item>
-             <widget class="QLineEdit" name="czod"/>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="czdo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_18">
-            <item>
-             <widget class="QLineEdit" name="ptod"/>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="ptdo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_19">
-            <item>
-             <widget class="QLineEdit" name="sood"/>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="sodo"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-       </layout>
+       <property name="title">
+        <string>Godziny pracownika</string>
+       </property>
+       <widget class="QWidget" name="layoutWidget_4">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>187</width>
+          <height>166</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_22">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_17">
+           <item>
+            <widget class="QLabel" name="label_38">
+             <property name="text">
+              <string>Poniedziałek</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_39">
+             <property name="text">
+              <string>Wtorek</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_40">
+             <property name="text">
+              <string>Środa</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_41">
+             <property name="text">
+              <string>Czwartek</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_42">
+             <property name="text">
+              <string>Piątek</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_43">
+             <property name="text">
+              <string>Sobota</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_16">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLineEdit" name="ponod"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="pondo"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLineEdit" name="wtod"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="wtdo"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLineEdit" name="srod"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="srdo"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_13">
+             <item>
+              <widget class="QLineEdit" name="czod"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="czdo"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_18">
+             <item>
+              <widget class="QLineEdit" name="ptod"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ptdo"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <item>
+              <widget class="QLineEdit" name="sood"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="sodo"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
      <widget class="QWidget" name="layoutWidget">

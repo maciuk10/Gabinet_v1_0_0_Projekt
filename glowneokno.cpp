@@ -380,19 +380,19 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
     for(int i = 0; i < clientData.length(); i++){
         clientData[i]->setText(index.model()->data(index.model()->index(index.row(), clientData.length() - i - 1), Qt::DisplayRole).toString());
     }
-    WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
-    qDebug() << WorkerID;
-    if(WorkerID > 0){
+    WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
+    if(WorkerID != ""){
         connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
         connection->OpenConnection();
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny WHERE uzytkownik_id="+QString::number(WorkerID)));
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
         QStringList results = tableCreator->executeSelect();
-        QList<QLineEdit*> hours = ui->workHoursFields->findChildren<QLineEdit*>();
+        QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
         for(int i = 0; i < hours.length(); i++){
             hours[i]->setText(results[i]);
         }
         connection->CloseConnection();
         delete connection;
+        this->clearControlsFromCertainGroup(ui->hoursSchema);
     }
 }
 
@@ -401,9 +401,48 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
 }
 
 void GlowneOkno::on_removeWorkerBtn_clicked() {
+    if(WorkerID != ""){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uzytkownik WHERE uzytkownik_nazwa='"+WorkerID+"'"));
+        tableCreator->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Usunięcie pracownika", "Pomyślnie usunięto dane pracownika z bazy danych", QMessageBox::Ok);
+        clearControlsFromCertainGroup(ui->clientData);
+        ui->ClientsTable_Client->clearSelection();
 
+        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
+        clientFiller->fillTheTable();
+        delete clientFiller;
+        connection->CloseConnection();
+        delete connection;
+        ui->workersWorkersTable->clearSelection();
+        this->clearControlsFromCertainGroup(ui->workersEditFields);
+        this->clearControlsFromCertainGroup(ui->workHoursFields);
+    }
+    WorkerID = "";
 }
 
 void GlowneOkno::on_clearFieldsWorkerBtn_clicked() {
+    ui->workersWorkersTable->clearSelection();
+    this->clearControlsFromCertainGroup(ui->workersEditFields);
+    this->clearControlsFromCertainGroup(ui->workHoursFields);
+}
 
+void GlowneOkno::on_toolButton_clicked() {
+    QString hourStrFrom = ui->hour_from->text();
+    QString hourStrTo = ui->hour_to->text();
+    QStringList hourPartsFrom = hourStrFrom.split(":");
+    QStringList hourPartsTo = hourStrTo.split(":");
+    if((hourPartsFrom[0] <= hourPartsTo[0]) || (hourPartsFrom[0] == hourPartsTo[0] && hourPartsFrom[1] < hourPartsTo[1])){
+        QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
+        for(int i = 0; i < hours.length(); i++){
+            if(i%2==0){
+                hours[i]->setText(hourPartsFrom[0]+":"+hourPartsFrom[1]+":00");
+            }else {
+                hours[i]->setText(hourPartsTo[0]+":"+hourPartsTo[1]+":00");
+            }
+        }
+    }else {
+        QMessageBox::warning(this, "Ustalenie godzin pracy", "Niepoprawnie ustawiono godziny pracy dla pracownika", QMessageBox::Ok);
+    }
 }
