@@ -314,14 +314,13 @@ void GlowneOkno::on_clientRemoveBtn_clicked() {
 }
 
 bool GlowneOkno::areLineEditsValid(QGroupBox *gb) {
-    bool empty = true;
     QList<QLineEdit*> fields = gb->findChildren<QLineEdit*>();
     foreach (QLineEdit* line, fields) {
         if(line->text() == ""){
-            empty = false;
-            return empty;
+            return false;
         }
     }
+    return true;
 }
 
 void GlowneOkno::prepareCharts() {
@@ -397,7 +396,43 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
 }
 
 void GlowneOkno::on_modifyWorkerBtn_clicked() {
+    bool valid = areLineEditsValid(ui->workersEditFields) && areLineEditsValid(ui->workerHours);
 
+    if(valid && WorkerID != ""){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET uzytkownik_nazwa='"+ui->workerIDEdit->text()+"', uzytkownik_imie='"+ui->workerNameEdit->text()+"', uzytkownik_nazwisko='"+ui->workerSurnameEdit->text()+"' WHERE uzytkownik_nazwa='"+WorkerID+"'"));
+        tableCreator->executeInsertUpdateDelete();
+        TableFiller *getID = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
+        QStringList idvalue = getID->executeSelect();
+
+        TableFiller *updateHours = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE godziny SET pon_od='"+ui->ponod->text()+"', pon_do='"+ui->pondo->text()+"', wt_od='"+ui->wtod->text()+"', wt_do='"+ui->wtdo->text()+"', sr_od='"+ui->srod->text()+"', sr_do='"+ui->srdo->text()+"', cz_od='"+ui->czod->text()+"', cz_do='"+ui->czdo->text()+"', pt_od='"+ui->ptod->text()+"', pt_do='"+ui->ptdo->text()+"', so_od='"+ui->sood->text()+"', so_do='"+ui->sodo->text()+"' WHERE uzytkownik_id="+idvalue[0]));
+        updateHours->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Modyfikacja pracownika", "Pomyślnie zmodyfikowano dane pracownika z bazy danych", QMessageBox::Ok);
+        clearControlsFromCertainGroup(ui->clientData);
+        ui->ClientsTable_Client->clearSelection();
+
+        WorkerID = ui->workerIDEdit->text();
+
+        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
+        clientFiller->fillTheTable();
+        TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
+
+        QStringList results = showHours->executeSelect();
+        QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
+        for(int i = 0; i < hours.length(); i++){
+            hours[i]->setText(results[i]);
+        }
+
+        //delete clientFiller;
+        connection->CloseConnection();
+        //delete connection;
+        ui->workersWorkersTable->clearSelection();
+        this->clearControlsFromCertainGroup(ui->workersEditFields);
+        this->clearControlsFromCertainGroup(ui->workHoursFields);
+    }else {
+        QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
+    }
 }
 
 void GlowneOkno::on_removeWorkerBtn_clicked() {
@@ -426,6 +461,7 @@ void GlowneOkno::on_clearFieldsWorkerBtn_clicked() {
     ui->workersWorkersTable->clearSelection();
     this->clearControlsFromCertainGroup(ui->workersEditFields);
     this->clearControlsFromCertainGroup(ui->workHoursFields);
+    WorkerID = "";
 }
 
 void GlowneOkno::on_toolButton_clicked() {
@@ -444,5 +480,45 @@ void GlowneOkno::on_toolButton_clicked() {
         }
     }else {
         QMessageBox::warning(this, "Ustalenie godzin pracy", "Niepoprawnie ustawiono godziny pracy dla pracownika", QMessageBox::Ok);
+    }
+}
+
+void GlowneOkno::on_addWorkerBtn_clicked() {
+    bool valid = areLineEditsValid(ui->workersEditFields) && areLineEditsValid(ui->workerHours);
+
+    if(valid && WorkerID == ""){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO uzytkownik(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko, haslo, pracownik) VALUES ('"+ui->workerIDEdit->text()+"', '"+ui->workerNameEdit->text()+"', '"+ui->workerSurnameEdit->text()+"', PASSWORD('"+ui->workerIDEdit->text()+"'), '1')"));
+        tableCreator->executeInsertUpdateDelete();
+        TableFiller *getID = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
+        QStringList idvalue = getID->executeSelect();
+        qDebug() << idvalue[0];
+        qDebug() << "Jest OK";
+        TableFiller *updateHours = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO godziny(uzytkownik_id, pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do) VALUES ('"+idvalue[0]+"','"+ui->ponod->text()+"','"+ui->pondo->text()+"','"+ui->wtod->text()+"','"+ui->wtdo->text()+"','"+ui->srod->text()+"','"+ui->srdo->text()+"','"+ui->czod->text()+"','"+ui->czdo->text()+"','"+ui->ptod->text()+"','"+ui->ptdo->text()+"','"+ui->sood->text()+"','"+ui->sodo->text()+"')"));
+        updateHours->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Dodanie pracownika", "Pomyślnie dodano dane pracownika do bazy danych", QMessageBox::Ok);
+        clearControlsFromCertainGroup(ui->clientData);
+        ui->ClientsTable_Client->clearSelection();
+
+
+        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
+        clientFiller->fillTheTable();
+        TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
+
+        QStringList results = showHours->executeSelect();
+        QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
+        for(int i = 0; i < hours.length(); i++){
+            hours[i]->setText(results[i]);
+        }
+
+        //delete clientFiller;
+        connection->CloseConnection();
+        //delete connection;
+        ui->workersWorkersTable->clearSelection();
+        this->clearControlsFromCertainGroup(ui->workersEditFields);
+        this->clearControlsFromCertainGroup(ui->workHoursFields);
+    }else {
+        QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
     }
 }

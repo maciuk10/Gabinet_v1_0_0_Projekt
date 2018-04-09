@@ -75,6 +75,8 @@ private slots:
 
     void on_toolButton_clicked();
 
+    void on_addWorkerBtn_clicked();
+
 private:
     Ui::GlowneOkno *ui;
     QSqlQuery *serviceTableQuery;
