@@ -135,10 +135,11 @@ void GlowneOkno::on_servicesServiceSearch_clicked() {
     connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
     connection->OpenConnection();
 
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
+    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
 
     if(tableCreator->getcountOfRows() != -1){
         tableCreator->fillTheTable();
+        ui->servicesServiceTable->setColumnHidden(0,true);
     }else {
         qDebug() << "informacja o braku rekordów spełniających dane kryteria";
     }
@@ -231,9 +232,13 @@ void GlowneOkno::on_workersWorkTable_clicked(const QModelIndex &index) {
 
 
 void GlowneOkno::clearControlsFromCertainGroup(QGroupBox *gb) {
-    QList<QLineEdit*> data = gb->findChildren<QLineEdit*>();
-    for(int i = 0; i < data.length(); i++){
-        data[i]->setText("");
+    QList<QLineEdit*> dataLE = gb->findChildren<QLineEdit*>();
+    for(int i = 0; i < dataLE.length(); i++){
+        dataLE[i]->setText("");
+    }
+    QList<QTextEdit*> dataTE = gb->findChildren<QTextEdit*>();
+    for(int i = 0; i < dataTE.length(); i++){
+        dataTE[i]->setText("");
     }
 }
 
@@ -335,10 +340,21 @@ void GlowneOkno::setHourSchema(QString from, QString to, QGroupBox *gb) {
     }
 }
 
+
 bool GlowneOkno::areLineEditsValid(QGroupBox *gb) {
     QList<QLineEdit*> fields = gb->findChildren<QLineEdit*>();
     foreach (QLineEdit* line, fields) {
         if(line->text() == ""){
+            return false;
+        }
+    }
+    return true;
+}
+
+bool GlowneOkno::areTextEditsValid(QGroupBox *gb) {
+    QList<QTextEdit*> fields = gb->findChildren<QTextEdit*>();
+    foreach (QTextEdit* line, fields) {
+        if(line->toPlainText() == ""){
             return false;
         }
     }
@@ -562,4 +578,84 @@ void GlowneOkno::on_schemaThree_clicked() {
 
 void GlowneOkno::on_schemaFour_clicked() {
     setHourSchema("10:00", "18:00", ui->workerHours);
+}
+
+void GlowneOkno::on_servicesServiceTable_clicked(const QModelIndex &index) {
+    QList<QLineEdit*> serviceData = ui->serviceData->findChildren<QLineEdit*>();
+    for(int i = 0; i < serviceData.length(); i++){
+        serviceData[i]->setText(index.model()->data(index.model()->index(index.row(), i+1), Qt::DisplayRole).toString());
+    }
+
+    ServiceID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    qDebug() << ServiceID;
+
+    ui->serviceDesc->setText(index.model()->data(index.model()->index(index.row(), 4), Qt::DisplayRole).toString());
+}
+
+void GlowneOkno::on_serviceClearBtn_clicked() {
+    clearControlsFromCertainGroup(ui->serviceData);
+    ui->servicesServiceTable->clearSelection();
+    ui->servicesServiceType->setText("");
+    ServiceID = 0;
+}
+
+void GlowneOkno::on_serviceRemoveBtn_clicked() {
+    bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
+    if(valid && ServiceID > 0){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uslugi WHERE uslugi_id='"+QString::number(ServiceID)+"'"));
+        tableCreator->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Usunięcie usługi", "Pomyślnie usunięto dane usługi z bazy danych", QMessageBox::Ok);
+        ui->servicesServiceTable->clearSelection();
+        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
+        clientFiller->fillTheTable();
+        connection->CloseConnection();
+        ui->servicesServiceTable->clearSelection();
+        this->clearControlsFromCertainGroup(ui->serviceData);
+    }
+    ServiceID = 0;
+}
+
+void GlowneOkno::on_serviceModifyBtn_clicked() {
+    bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
+    if(valid && ServiceID > 0){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        if(ui->servicePrice->text().indexOf(",") != -1){
+            QString price = ui->servicePrice->text();
+            price.replace(",", ".");
+            ui->servicePrice->setText(price);
+        }
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uslugi SET nazwa='"+ui->serviceName->text()+"', cena='"+ui->servicePrice->text()+"', czas='"+ui->serviceTime->text()+"', opis='"+ui->serviceDesc->toPlainText()+"' WHERE uslugi_id='"+QString::number(ServiceID)+"'"));
+        tableCreator->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Modyfikacja usługi", "Pomyślnie zmodyfikowano dane usługi z bazy danych", QMessageBox::Ok);
+        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
+        clientFiller->fillTheTable();
+        connection->CloseConnection();
+        ui->servicesServiceTable->clearSelection();
+        this->clearControlsFromCertainGroup(ui->serviceData);
+    }
+    ServiceID = 0;
+}
+
+void GlowneOkno::on_serviceAddBtn_clicked() {
+    bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
+    if(valid && ServiceID == 0){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        if(ui->servicePrice->text().indexOf(",") != -1){
+            QString price = ui->servicePrice->text();
+            price.replace(",", ".");
+            ui->servicePrice->setText(price);
+        }
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO uslugi(nazwa, cena, czas, opis) VALUES ('"+ui->serviceName->text()+"','"+ui->servicePrice->text()+"','"+ui->serviceTime->text()+"','"+ui->serviceDesc->toPlainText()+"')"));
+        tableCreator->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Dodanie usługi", "Pomyślnie dodano dane usługi do bazy danych", QMessageBox::Ok);
+        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
+        clientFiller->fillTheTable();
+        connection->CloseConnection();
+        ui->servicesServiceTable->clearSelection();
+        this->clearControlsFromCertainGroup(ui->serviceData);
+    }
 }

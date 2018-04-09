@@ -26,6 +26,7 @@ public:
     void setDefaultTableFormatting();
     void clearControlsFromCertainGroup(QGroupBox *gb);
     bool areLineEditsValid(QGroupBox *gb);
+    bool areTextEditsValid(QGroupBox *gb);
     void prepareCharts();
     bool validHourRange(QString from, QString to);
     void setHourSchema(QString from, QString to, QGroupBox *gb);
@@ -87,6 +88,16 @@ private slots:
 
     void on_schemaFour_clicked();
 
+    void on_servicesServiceTable_clicked(const QModelIndex &index);
+
+    void on_serviceClearBtn_clicked();
+
+    void on_serviceRemoveBtn_clicked();
+
+    void on_serviceModifyBtn_clicked();
+
+    void on_serviceAddBtn_clicked();
+
 private:
     Ui::GlowneOkno *ui;
     QSqlQuery *serviceTableQuery;
@@ -96,6 +107,7 @@ private:
     QSqlQueryModel *model;
     int userID;
     int ClientID;
+    int ServiceID;
     QString WorkerID;
 };
 

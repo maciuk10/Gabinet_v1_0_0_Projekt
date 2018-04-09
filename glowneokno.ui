@@ -421,7 +421,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>3</number>
     </property>
     <property name="tabBarAutoHide">
      <bool>false</bool>
@@ -752,7 +752,11 @@ font: 10pt &quot;Fira Sans&quot;;</string>
            <widget class="QLineEdit" name="clientEmailEdit"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="clientPhoneEdit"/>
+           <widget class="QLineEdit" name="clientPhoneEdit">
+            <property name="inputMask">
+             <string>999-999-999</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -814,6 +818,9 @@ font: 10pt &quot;Fira Sans&quot;;</string>
                 <width>50</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="inputMask">
+               <string>99-999</string>
               </property>
              </widget>
             </item>
@@ -1129,7 +1136,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
        <string notr="true">border-image: url(:/banners/banners/emptyTableView441x551.png) 0 0 0 0 stretch stretch;</string>
       </property>
      </widget>
-     <widget class="QGroupBox" name="groupBox_10">
+     <widget class="QGroupBox" name="serviceData">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -1154,7 +1161,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
         <string>Opis:</string>
        </property>
       </widget>
-      <widget class="QTextEdit" name="textEdit">
+      <widget class="QTextEdit" name="serviceDesc">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -1202,13 +1209,13 @@ font: 10pt &quot;Fira Sans&quot;;</string>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_18">
           <item>
-           <widget class="QLineEdit" name="lineEdit_41"/>
+           <widget class="QLineEdit" name="serviceName"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_42"/>
+           <widget class="QLineEdit" name="servicePrice"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_43"/>
+           <widget class="QLineEdit" name="serviceTime"/>
           </item>
          </layout>
         </item>
@@ -1225,28 +1232,28 @@ font: 10pt &quot;Fira Sans&quot;;</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_27">
         <item>
-         <widget class="QPushButton" name="pushButton_26">
+         <widget class="QPushButton" name="serviceAddBtn">
           <property name="text">
            <string>Dodaj</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_27">
+         <widget class="QPushButton" name="serviceModifyBtn">
           <property name="text">
-           <string>Aktualizuj</string>
+           <string>Modyfikuj</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_28">
+         <widget class="QPushButton" name="serviceRemoveBtn">
           <property name="text">
            <string>Usuń</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_29">
+         <widget class="QPushButton" name="serviceClearBtn">
           <property name="text">
            <string>Wyczyść</string>
           </property>
