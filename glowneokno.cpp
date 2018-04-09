@@ -313,6 +313,28 @@ void GlowneOkno::on_clientRemoveBtn_clicked() {
     ClientID = 0;
 }
 
+bool GlowneOkno::validHourRange(QString from, QString to){
+    int fromSum = (from.at(0).digitValue()*1000) + (from.at(1).digitValue()*100) + (from.at(3).digitValue()*10) + (from.at(4).digitValue()*1);
+    int toSum = (to.at(0).digitValue()*1000) + (to.at(1).digitValue()*100) + (to.at(3).digitValue()*10) + (to.at(4).digitValue()*1);
+
+    if (toSum > fromSum){
+        return true;
+    }else {
+        return false;
+    }
+}
+
+void GlowneOkno::setHourSchema(QString from, QString to, QGroupBox *gb) {
+    QList<QLineEdit*> fields = gb->findChildren<QLineEdit*>();
+    for(int i = 0; i < fields.length(); i++){
+        if(i%2==0){
+            fields[i]->setText(from+":00");
+        }else{
+            fields[i]->setText(to+":00");
+        }
+    }
+}
+
 bool GlowneOkno::areLineEditsValid(QGroupBox *gb) {
     QList<QLineEdit*> fields = gb->findChildren<QLineEdit*>();
     foreach (QLineEdit* line, fields) {
@@ -465,21 +487,23 @@ void GlowneOkno::on_clearFieldsWorkerBtn_clicked() {
 }
 
 void GlowneOkno::on_toolButton_clicked() {
-    QString hourStrFrom = ui->hour_from->text();
-    QString hourStrTo = ui->hour_to->text();
-    QStringList hourPartsFrom = hourStrFrom.split(":");
-    QStringList hourPartsTo = hourStrTo.split(":");
-    if((hourPartsFrom[0] <= hourPartsTo[0]) || (hourPartsFrom[0] == hourPartsTo[0] && hourPartsFrom[1] < hourPartsTo[1])){
-        QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
-        for(int i = 0; i < hours.length(); i++){
-            if(i%2==0){
-                hours[i]->setText(hourPartsFrom[0]+":"+hourPartsFrom[1]+":00");
-            }else {
-                hours[i]->setText(hourPartsTo[0]+":"+hourPartsTo[1]+":00");
+    QString from = ui->hour_from->text();
+    QString to = ui->hour_to->text();
+    if(from.length() == 5 && to.length() == 5){
+        if(validHourRange(from, to)){
+            QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
+            for(int i = 0; i < hours.length(); i++){
+                if(i%2==0){
+                    hours[i]->setText(from+":00");
+                }else {
+                    hours[i]->setText(to+":00");
+                }
             }
+        }else {
+            QMessageBox::warning(this, "Ustalenie godzin pracy", "Niepoprawnie ustawiono godziny pracy dla pracownika", QMessageBox::Ok);
         }
     }else {
-        QMessageBox::warning(this, "Ustalenie godzin pracy", "Niepoprawnie ustawiono godziny pracy dla pracownika", QMessageBox::Ok);
+        QMessageBox::warning(this, "Ustalenie godzin pracy", "Podano niepoprawne wartości dla pola godzin. Pamiętaj o schemacie 00:00", QMessageBox::Ok);
     }
 }
 
@@ -504,6 +528,7 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
 
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
         clientFiller->fillTheTable();
+        ui->workersWorkersTable->setStyleSheet("border-image: none");
         TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
 
         QStringList results = showHours->executeSelect();
@@ -521,4 +546,20 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
     }else {
         QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
     }
+}
+
+void GlowneOkno::on_schemaOne_clicked() {
+    setHourSchema("07:00", "15:00", ui->workerHours);
+}
+
+void GlowneOkno::on_schemaTwo_clicked() {
+    setHourSchema("08:00", "16:00", ui->workerHours);
+}
+
+void GlowneOkno::on_schemaThree_clicked() {
+    setHourSchema("09:00", "17:00", ui->workerHours);
+}
+
+void GlowneOkno::on_schemaFour_clicked() {
+    setHourSchema("10:00", "18:00", ui->workerHours);
 }

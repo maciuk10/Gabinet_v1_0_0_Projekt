@@ -1411,28 +1411,28 @@ font: 10pt &quot;Fira Sans&quot;;</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_20">
          <item>
-          <widget class="QPushButton" name="pushButton_19">
+          <widget class="QPushButton" name="schemaOne">
            <property name="text">
             <string>7:00-15:00</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_23">
+          <widget class="QPushButton" name="schemaTwo">
            <property name="text">
             <string>8:00-16:00</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_21">
+          <widget class="QPushButton" name="schemaThree">
            <property name="text">
             <string>9:00-17:00</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_22">
+          <widget class="QPushButton" name="schemaFour">
            <property name="text">
             <string>10:00-18:00</string>
            </property>
@@ -1471,6 +1471,15 @@ font: 10pt &quot;Fira Sans&quot;;</string>
           <height>20</height>
          </rect>
         </property>
+        <property name="inputMask">
+         <string>99:99</string>
+        </property>
+        <property name="maxLength">
+         <number>5</number>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>false</bool>
+        </property>
        </widget>
        <widget class="QLineEdit" name="hour_to">
         <property name="geometry">
@@ -1480,6 +1489,12 @@ font: 10pt &quot;Fira Sans&quot;;</string>
           <width>35</width>
           <height>20</height>
          </rect>
+        </property>
+        <property name="inputMask">
+         <string>99:99</string>
+        </property>
+        <property name="maxLength">
+         <number>5</number>
         </property>
        </widget>
        <widget class="QToolButton" name="toolButton">

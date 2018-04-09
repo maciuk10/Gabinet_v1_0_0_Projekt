@@ -27,6 +27,8 @@ public:
     void clearControlsFromCertainGroup(QGroupBox *gb);
     bool areLineEditsValid(QGroupBox *gb);
     void prepareCharts();
+    bool validHourRange(QString from, QString to);
+    void setHourSchema(QString from, QString to, QGroupBox *gb);
 
 private slots:
     void on_reservationServiceSearch_clicked();
@@ -76,6 +78,14 @@ private slots:
     void on_toolButton_clicked();
 
     void on_addWorkerBtn_clicked();
+
+    void on_schemaOne_clicked();
+
+    void on_schemaTwo_clicked();
+
+    void on_schemaThree_clicked();
+
+    void on_schemaFour_clicked();
 
 private:
     Ui::GlowneOkno *ui;
