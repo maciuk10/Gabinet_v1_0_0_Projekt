@@ -17,6 +17,19 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
 
     this->prepareCharts();
 
+    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    connection->OpenConnection();
+
+    TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT nazwa, branza, email, adres, kod_pocztowy, miasto, wojewodztwo, kraj, nip  FROM info_o_firmie WHERE firma_id = 1"));
+    QStringList companyData = clientFiller->executeSelect();
+    QList<QLineEdit*> compData = ui->changeCompanyData->findChildren<QLineEdit*>();
+    for(int i = 0; i < compData.length(); i++){
+        compData[i]->setText(companyData[i]);
+    }
+
+    connection->CloseConnection();
+
+
     connect(ui->logout, SIGNAL(clicked(int)), ui->logout, SLOT(closeProgram(int)));
 
     QList<QWidget*> icons;
