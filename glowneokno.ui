@@ -1773,13 +1773,13 @@ font: 14pt &quot;Fira Sans&quot;;</string>
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Zmień dane użytkownika</string>
        </attribute>
-       <widget class="QGroupBox" name="groupBox_11">
+       <widget class="QGroupBox" name="simpleDataGB">
         <property name="geometry">
          <rect>
           <x>190</x>
@@ -1794,7 +1794,7 @@ font: 14pt &quot;Fira Sans&quot;;</string>
         <property name="title">
          <string>Zmiana danych osobowych:</string>
         </property>
-        <widget class="QPushButton" name="pushButton_13">
+        <widget class="QPushButton" name="simpleDataChange">
          <property name="geometry">
           <rect>
            <x>166</x>
@@ -1857,13 +1857,13 @@ font: 14pt &quot;Fira Sans&quot;;</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_22">
             <item>
-             <widget class="QLineEdit" name="lineEdit_20"/>
+             <widget class="QLineEdit" name="simpID"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_18"/>
+             <widget class="QLineEdit" name="simpName"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_19"/>
+             <widget class="QLineEdit" name="simpSurname"/>
             </item>
            </layout>
           </item>
@@ -1890,7 +1890,7 @@ font: 14pt &quot;Fira Sans&quot;;</string>
         <property name="title">
          <string>Zmiana danych firmy:</string>
         </property>
-        <widget class="QPushButton" name="pushButton_14">
+        <widget class="QPushButton" name="changeCompanyInfo">
          <property name="geometry">
           <rect>
            <x>400</x>
@@ -1973,19 +1973,19 @@ font: 14pt &quot;Fira Sans&quot;;</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_23">
             <item>
-             <widget class="QLineEdit" name="lineEdit_21"/>
+             <widget class="QLineEdit" name="compName"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_22"/>
+             <widget class="QLineEdit" name="compCat"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_38"/>
+             <widget class="QLineEdit" name="comMail"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_39"/>
+             <widget class="QLineEdit" name="compAdr"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_40"/>
+             <widget class="QLineEdit" name="compCode"/>
             </item>
            </layout>
           </item>
@@ -2048,16 +2048,16 @@ font: 14pt &quot;Fira Sans&quot;;</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_26">
             <item>
-             <widget class="QLineEdit" name="lineEdit_44"/>
+             <widget class="QLineEdit" name="compCity"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_45"/>
+             <widget class="QLineEdit" name="compVoivode"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_46"/>
+             <widget class="QLineEdit" name="compCntry"/>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_47"/>
+             <widget class="QLineEdit" name="nip"/>
             </item>
            </layout>
           </item>
@@ -2085,7 +2085,7 @@ font: 14pt &quot;Fira Sans&quot;;</string>
        <attribute name="title">
         <string>Ustal urlopy</string>
        </attribute>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="QGroupBox" name="changePasswordGB">
         <property name="geometry">
          <rect>
           <x>180</x>
@@ -2100,11 +2100,11 @@ font: 14pt &quot;Fira Sans&quot;;</string>
         <property name="title">
          <string>Zmiana hasła:</string>
         </property>
-        <widget class="QPushButton" name="pushButton_12">
+        <widget class="QPushButton" name="changePasswordBtn">
          <property name="geometry">
           <rect>
-           <x>174</x>
-           <y>130</y>
+           <x>190</x>
+           <y>120</y>
            <width>81</width>
            <height>31</height>
           </rect>
@@ -2116,37 +2116,20 @@ font: 14pt &quot;Fira Sans&quot;;</string>
           <string>Zmień hasło</string>
          </property>
         </widget>
-        <widget class="QWidget" name="layoutWidget_3">
+        <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
-           <x>52</x>
-           <y>57</y>
-           <width>203</width>
+           <x>40</x>
+           <y>50</y>
+           <width>231</width>
            <height>61</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
+         <layout class="QHBoxLayout" name="horizontalLayout_14">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <widget class="QLabel" name="label_28">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-              <property name="text">
-               <string>Stare hasło:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="lineEdit_16"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_14">
-            <item>
-             <widget class="QLabel" name="label_29">
               <property name="styleSheet">
                <string notr="true"/>
               </property>
@@ -2156,7 +2139,32 @@ font: 14pt &quot;Fira Sans&quot;;</string>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_17"/>
+             <widget class="QLabel" name="label_29">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Powtórz hasło:</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_28">
+            <item>
+             <widget class="QLineEdit" name="newPass">
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="oldPass">
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -2231,14 +2239,13 @@ border-radius: 60px;</string>
         </property>
         <property name="styleSheet">
          <string notr="true">color: rgb(90,123,156);
-font-size: 25px;
-text-shadow: 2px 2px #ff0000;</string>
+font-size: 25px;</string>
         </property>
         <property name="text">
          <string>Aplikacja Gabinet</string>
         </property>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>50</x>

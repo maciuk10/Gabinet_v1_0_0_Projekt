@@ -98,6 +98,12 @@ private slots:
 
     void on_serviceAddBtn_clicked();
 
+    void on_changeCompanyInfo_clicked();
+
+    void on_simpleDataChange_clicked();
+
+    void on_changePasswordBtn_clicked();
+    
 private:
     Ui::GlowneOkno *ui;
     QSqlQuery *serviceTableQuery;

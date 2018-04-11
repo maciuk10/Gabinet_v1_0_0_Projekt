@@ -29,6 +29,16 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
 
     connection->CloseConnection();
 
+    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    connection->OpenConnection();
+
+    TableFiller *changeSimpleData = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko FROM uzytkownik WHERE uzytkownik_id = "+QString::number(userID)));
+    QStringList simpleData = changeSimpleData->executeSelect();
+    QList<QLineEdit*> sData = ui->simpleDataGB->findChildren<QLineEdit*>();
+    for(int i = 0; i < sData.length(); i++){
+        sData[i]->setText(simpleData[i]);
+    }
+    connection->CloseConnection();
 
     connect(ui->logout, SIGNAL(clicked(int)), ui->logout, SLOT(closeProgram(int)));
 
@@ -425,6 +435,7 @@ void GlowneOkno::prepareCharts() {
             ui->gridLayoutCharts->activate();
 }
 
+
 void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
     QList<QLineEdit*> clientData = ui->workersEditFields->findChildren<QLineEdit*>();
     for(int i = 0; i < clientData.length(); i++){
@@ -670,5 +681,54 @@ void GlowneOkno::on_serviceAddBtn_clicked() {
         connection->CloseConnection();
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
+    }
+}
+
+void GlowneOkno::on_changeCompanyInfo_clicked() {
+    bool valid = areLineEditsValid(ui->changeCompanyData);
+    if(valid){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE info_o_firmie SET  nazwa='"+ui->compName->text()+"', branza='"+ui->compCat->text()+"', email='"+ui->comMail->text()+"', adres='"+ui->compAdr->text()+"', kod_pocztowy='"+ui->compCode->text()+"', miasto='"+ui->compCity->text()+"', wojewodztwo='"+ui->compVoivode->text()+"', kraj='"+ui->compCntry->text()+"', nip='"+ui->nip->text()+"' WHERE firma_id = 1"));
+        tableCreator->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Zmiana danych firmy", "Pomyślnie zmodyfikowano dane firmy z bazy danych", QMessageBox::Ok);
+        TableFiller *company = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT * FROM info_o_firmie"));
+        QStringList companyData = company->executeSelect();
+        QList<QLineEdit*> companyList = ui->changeCompanyData->findChildren<QLineEdit*>();
+        for(int i = 0; i < companyList.length(); i++){
+            companyList[i]->setText(companyData[i+1]);
+        }
+    }
+}
+
+void GlowneOkno::on_simpleDataChange_clicked() {
+    bool valid = areLineEditsValid(ui->simpleDataGB);
+    if(valid){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET uzytkownik_nazwa='"+ui->simpID->text()+"', uzytkownik_imie='"+ui->simpName->text()+"', uzytkownik_nazwisko='"+ui->simpSurname->text()+"' WHERE uzytkownik_nazwa='"+ui->simpID->text()+"'"));
+        tableCreator->executeInsertUpdateDelete();
+        QMessageBox::information(this, "Zmiana danych osobowych", "Pomyślnie zmodyfikowano dane osobowe w bazy danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
+        TableFiller *company = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko FROM uzytkownik WHERE uzytkownik_id="+QString::number(userID)));
+        QStringList companyData = company->executeSelect();
+        QList<QLineEdit*> companyList = ui->simpleDataGB->findChildren<QLineEdit*>();
+        for(int i = 0; i < companyList.length(); i++){
+            companyList[i]->setText(companyData[i]);
+        }
+    }
+}
+
+void GlowneOkno::on_changePasswordBtn_clicked() {
+    bool valid = areLineEditsValid(ui->changePasswordGB) && (ui->newPass->text() == ui->oldPass->text());
+    if(valid){
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET haslo=PASSWORD('"+ui->newPass->text()+"') WHERE uzytkownik_id="+QString::number(userID)));
+        tableCreator->executeInsertUpdateDelete();
+        if (tableCreator->getcountOfRows() <= 0){
+            QMessageBox::warning(this, "Zmiana hasła użytkownika", "Pomyślnie zmodyfikowano hasło użytkownika w bazie danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
+            clearControlsFromCertainGroup(ui->changePasswordGB);
+        }
+        connection->CloseConnection();
     }
 }

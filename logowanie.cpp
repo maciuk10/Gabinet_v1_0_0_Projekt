@@ -36,7 +36,6 @@ void Logowanie::on_zalogujBTN_clicked() {
     login->CloseConnection();
 
     if(rows == 1){
-        qDebug() << "Jestem tu";
         mainW = new GlowneOkno(nullptr, userID);
         mainW->show();
         this->hide();
