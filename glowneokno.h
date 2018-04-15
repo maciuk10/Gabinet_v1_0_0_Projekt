@@ -104,6 +104,18 @@ private slots:
 
     void on_changePasswordBtn_clicked();
     
+    void on_addServiceWorkTable_doubleClicked(const QModelIndex &index);
+
+    void on_workerReservationTable_clicked(const QModelIndex &index);
+
+    void on_calendarWidget_clicked(const QDate &date);
+
+    void on_servicesWorkTable_doubleClicked(const QModelIndex &index);
+
+    void on_serviceTable_clicked(const QModelIndex &index);
+
+    void on_clientTable_clicked(const QModelIndex &index);
+
 private:
     Ui::GlowneOkno *ui;
     QSqlQuery *serviceTableQuery;
@@ -115,6 +127,9 @@ private:
     int ClientID;
     int ServiceID;
     QString WorkerID;
+    QStringList currentid;
+    QStringList currentServices;
+    bool alreadyActivated = false;
 };
 
 #endif // GLOWNEOKNO_H

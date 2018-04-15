@@ -65,3 +65,4 @@ int TableFiller::getcountOfRows() {
     setcountOfRows(query->size());
     return this->countOfRows;
 }
+
