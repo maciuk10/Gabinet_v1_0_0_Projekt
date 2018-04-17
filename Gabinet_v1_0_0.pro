@@ -29,14 +29,16 @@ SOURCES += \
     glowneokno.cpp \
     sqlconnect.cpp \
     tablefiller.cpp \
-    clickablelabel.cpp
+    clickablelabel.cpp \
+    date.cpp
 
 HEADERS += \
         logowanie.h \
     glowneokno.h \
     sqlconnect.h \
     tablefiller.h \
-    clickablelabel.h
+    clickablelabel.h \
+    date.h
 
 FORMS += \
         logowanie.ui \

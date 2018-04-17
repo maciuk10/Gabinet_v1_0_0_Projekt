@@ -30,6 +30,11 @@ public:
     void prepareCharts();
     bool validHourRange(QString from, QString to);
     void setHourSchema(QString from, QString to, QGroupBox *gb);
+    void generateDailySchedule(QString hourFrom, QString hourTo);
+    void clearWidgets(QLayout *layout);
+    QString giveDays();
+
+
 
 private slots:
     void on_reservationServiceSearch_clicked();

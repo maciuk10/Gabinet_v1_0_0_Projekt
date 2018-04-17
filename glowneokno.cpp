@@ -393,6 +393,27 @@ void GlowneOkno::setHourSchema(QString from, QString to, QGroupBox *gb) {
     }
 }
 
+void GlowneOkno::generateDailySchedule(QString hourFrom, QString hourTo) {
+    QTime hFrom = QTime::fromString(hourFrom, "hh:mm:ss");
+    QTime hTo = QTime::fromString(hourTo, "hh:mm:ss");
+    qDebug()<<hFrom.secsTo(hTo) / 60;
+}
+
+void GlowneOkno::clearWidgets(QLayout *layout) {
+    if (!layout){
+        return;
+    }
+    while (auto item = layout->takeAt(0)) {
+        delete item->widget();
+        clearWidgets(item->layout());
+    }
+}
+
+QString GlowneOkno::giveDays() {
+     QString currentDay = QDate::longDayName(ui->calendarWidget->selectedDate().dayOfWeek());
+     return currentDay.mid(0,2);
+}
+
 
 bool GlowneOkno::areLineEditsValid(QGroupBox *gb) {
     QList<QLineEdit*> fields = gb->findChildren<QLineEdit*>();
@@ -475,7 +496,7 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
     if(WorkerID != ""){
         connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
         connection->OpenConnection();
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT po_od, po_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pi_od, pi_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
         QStringList results = tableCreator->executeSelect();
         QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
         for(int i = 0; i < hours.length(); i++){
@@ -498,7 +519,7 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
         TableFiller *getID = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
         QStringList idvalue = getID->executeSelect();
 
-        TableFiller *updateHours = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE godziny SET pon_od='"+ui->ponod->text()+"', pon_do='"+ui->pondo->text()+"', wt_od='"+ui->wtod->text()+"', wt_do='"+ui->wtdo->text()+"', sr_od='"+ui->srod->text()+"', sr_do='"+ui->srdo->text()+"', cz_od='"+ui->czod->text()+"', cz_do='"+ui->czdo->text()+"', pt_od='"+ui->ptod->text()+"', pt_do='"+ui->ptdo->text()+"', so_od='"+ui->sood->text()+"', so_do='"+ui->sodo->text()+"' WHERE uzytkownik_id="+idvalue[0]));
+        TableFiller *updateHours = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE godziny SET po_od='"+ui->ponod->text()+"', po_do='"+ui->pondo->text()+"', wt_od='"+ui->wtod->text()+"', wt_do='"+ui->wtdo->text()+"', sr_od='"+ui->srod->text()+"', sr_do='"+ui->srdo->text()+"', cz_od='"+ui->czod->text()+"', cz_do='"+ui->czdo->text()+"', pi_od='"+ui->ptod->text()+"', pi_do='"+ui->ptdo->text()+"', so_od='"+ui->sood->text()+"', so_do='"+ui->sodo->text()+"' WHERE uzytkownik_id="+idvalue[0]));
         updateHours->executeInsertUpdateDelete();
         QMessageBox::information(this, "Modyfikacja pracownika", "Pomyślnie zmodyfikowano dane pracownika z bazy danych", QMessageBox::Ok);
         clearControlsFromCertainGroup(ui->clientData);
@@ -508,7 +529,7 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
 
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
         clientFiller->fillTheTable();
-        TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
+        TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT po_od, po_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pi_od, pi_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
 
         QStringList results = showHours->executeSelect();
         QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
@@ -589,7 +610,7 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
         QStringList idvalue = getID->executeSelect();
         qDebug() << idvalue[0];
         qDebug() << "Jest OK";
-        TableFiller *updateHours = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO godziny(uzytkownik_id, pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do) VALUES ('"+idvalue[0]+"','"+ui->ponod->text()+"','"+ui->pondo->text()+"','"+ui->wtod->text()+"','"+ui->wtdo->text()+"','"+ui->srod->text()+"','"+ui->srdo->text()+"','"+ui->czod->text()+"','"+ui->czdo->text()+"','"+ui->ptod->text()+"','"+ui->ptdo->text()+"','"+ui->sood->text()+"','"+ui->sodo->text()+"')"));
+        TableFiller *updateHours = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO godziny(uzytkownik_id, po_od, po_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pi_od, pi_do, so_od, so_do) VALUES ('"+idvalue[0]+"','"+ui->ponod->text()+"','"+ui->pondo->text()+"','"+ui->wtod->text()+"','"+ui->wtdo->text()+"','"+ui->srod->text()+"','"+ui->srdo->text()+"','"+ui->czod->text()+"','"+ui->czdo->text()+"','"+ui->ptod->text()+"','"+ui->ptdo->text()+"','"+ui->sood->text()+"','"+ui->sodo->text()+"')"));
         updateHours->executeInsertUpdateDelete();
         QMessageBox::information(this, "Dodanie pracownika", "Pomyślnie dodano dane pracownika do bazy danych", QMessageBox::Ok);
         clearControlsFromCertainGroup(ui->clientData);
@@ -599,7 +620,7 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
         clientFiller->fillTheTable();
         ui->workersWorkersTable->setStyleSheet("border-image: none");
-        TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT pon_od, pon_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pt_od, pt_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
+        TableFiller *showHours = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT po_od, po_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pi_od, pi_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
 
         QStringList results = showHours->executeSelect();
         QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
@@ -791,26 +812,32 @@ void GlowneOkno::on_addServiceWorkTable_doubleClicked(const QModelIndex &index) 
 }
 
 void GlowneOkno::on_workerReservationTable_clicked(const QModelIndex &index) {
+    QString currentUserID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
     QDate today = ui->calendarWidget->selectedDate();
     QString todayStr = today.toString("dd.MM.yyyy");
     ui->choosenDate->setText(todayStr);
-
     connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
     connection->OpenConnection();
-
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+currentid[0]+"'"));
-    currentServices = tableCreator->executeSelect();
+    QString selectedDay = giveDays();
+    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT "+selectedDay+"_od, "+selectedDay+"_do FROM godziny AS g, uzytkownik AS u WHERE u.uzytkownik_id=g.uzytkownik_id AND u.uzytkownik_nazwa='"+currentUserID+"'"));
+    QStringList returnedHours = tableCreator->executeSelect();
     connection->CloseConnection();
-
+    generateDailySchedule(returnedHours[0], returnedHours[1]);
+    clearWidgets(ui->hoursLayout);
+    for(int i = 0; i < 10; i++){
+        QLineEdit* hour = new QLineEdit();
+        hour->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #0099CC; font-weight: 800");
+        ui->hoursLayout->addWidget(hour);
+    }
+    ui->hoursField->setLayout(ui->hoursLayout);
 }
 
 void GlowneOkno::on_calendarWidget_clicked(const QDate &date) {
-    qDebug() << date.day() << date.month() << date.year();
+    qDebug() << QDate::longDayName(date.dayOfWeek());
 }
 
 void GlowneOkno::on_servicesWorkTable_doubleClicked(const QModelIndex &index) {
     QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
-    qDebug() << currentid[0];
 
     connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
     connection->OpenConnection();
@@ -831,6 +858,7 @@ void GlowneOkno::on_servicesWorkTable_doubleClicked(const QModelIndex &index) {
 }
 
 void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
+    clearWidgets(ui->hoursLayout);
     ui->choosenService->setText(index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString());
     ui->workerReservationSearch->setEnabled(true);
     QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
