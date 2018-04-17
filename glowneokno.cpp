@@ -14,6 +14,7 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
     ui->tabWidget->tabBar()->hide();
 
     this->setDefaultTableFormatting();
+    ui->calendarWidget->setFixedWidth(235);
 
     this->prepareCharts();
 
@@ -97,7 +98,7 @@ void GlowneOkno::on_reservationClientSearch_clicked()
     connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
     connection->OpenConnection();
 
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->clientTable, QString("SELECT imie AS Imię, nazwisko AS Nazwisko FROM klienci WHERE CONCAT(imie, nazwisko) LIKE '%"+ui->clientReservationType->text()+"%'"));
+    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->clientTable, QString("SELECT klienci_id AS ID, imie AS Imię, nazwisko AS Nazwisko FROM klienci WHERE CONCAT(imie, nazwisko) LIKE '%"+ui->clientReservationType->text()+"%'"));
     tableCreator->fillTheTable();
     delete tableCreator;
     connection->CloseConnection();
@@ -396,7 +397,18 @@ void GlowneOkno::setHourSchema(QString from, QString to, QGroupBox *gb) {
 void GlowneOkno::generateDailySchedule(QString hourFrom, QString hourTo) {
     QTime hFrom = QTime::fromString(hourFrom, "hh:mm:ss");
     QTime hTo = QTime::fromString(hourTo, "hh:mm:ss");
-    qDebug()<<hFrom.secsTo(hTo) / 60;
+    int amountOfMinutes = hFrom.secsTo(hTo) / 60;
+    int amountOfBlocks = amountOfMinutes / 30;
+    for(int i = 0; i < amountOfBlocks; i++){
+        QPushButton* hour = new QPushButton(hFrom.toString(), this);
+        hour->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
+        hour->setWhatsThis("1");
+        ui->hoursLayout->addWidget(hour);
+        hFrom = hFrom.addSecs(1800);
+        connect(hour, &QPushButton::clicked, [=]{
+            chooseHourFromList(hour);
+        });
+    }
 }
 
 void GlowneOkno::clearWidgets(QLayout *layout) {
@@ -812,28 +824,38 @@ void GlowneOkno::on_addServiceWorkTable_doubleClicked(const QModelIndex &index) 
 }
 
 void GlowneOkno::on_workerReservationTable_clicked(const QModelIndex &index) {
+    clearWidgets(ui->hoursLayout);
     QString currentUserID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
+
+    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    connection->OpenConnection();
+    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+currentUserID+"'"));
+    QStringList userIDList = tableCreator->executeSelect();
+    userID = userIDList[0].toInt();
+    connection->CloseConnection();
+
     QDate today = ui->calendarWidget->selectedDate();
     QString todayStr = today.toString("dd.MM.yyyy");
     ui->choosenDate->setText(todayStr);
     connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
     connection->OpenConnection();
     QString selectedDay = giveDays();
+    if(selectedDay == "śr"){
+        selectedDay = "sr";
+    }
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT "+selectedDay+"_od, "+selectedDay+"_do FROM godziny AS g, uzytkownik AS u WHERE u.uzytkownik_id=g.uzytkownik_id AND u.uzytkownik_nazwa='"+currentUserID+"'"));
     QStringList returnedHours = tableCreator->executeSelect();
     connection->CloseConnection();
     generateDailySchedule(returnedHours[0], returnedHours[1]);
-    clearWidgets(ui->hoursLayout);
-    for(int i = 0; i < 10; i++){
-        QLineEdit* hour = new QLineEdit();
-        hour->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #0099CC; font-weight: 800");
-        ui->hoursLayout->addWidget(hour);
-    }
     ui->hoursField->setLayout(ui->hoursLayout);
 }
 
 void GlowneOkno::on_calendarWidget_clicked(const QDate &date) {
-    qDebug() << QDate::longDayName(date.dayOfWeek());
+    clearWidgets(ui->hoursLayout);
+    ui->workerReservationTable->clearSelection();
+    if(QDate::longDayName(date.dayOfWeek()) == "Niedziela"){
+        QMessageBox::warning(this, "Wybrano niedzielę", "W wybrany dzień zakład nie oferuje swych usług. Zostanie wybrany pierwszy dzień tygodnia", QMessageBox::Ok);
+    }
 }
 
 void GlowneOkno::on_servicesWorkTable_doubleClicked(const QModelIndex &index) {
@@ -859,6 +881,7 @@ void GlowneOkno::on_servicesWorkTable_doubleClicked(const QModelIndex &index) {
 
 void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
     clearWidgets(ui->hoursLayout);
+    ServiceID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
     ui->choosenService->setText(index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString());
     ui->workerReservationSearch->setEnabled(true);
     QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
@@ -874,5 +897,33 @@ void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
 }
 
 void GlowneOkno::on_clientTable_clicked(const QModelIndex &index) {
-    ui->choosenClient->setText(index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString()+" "+index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString());
+    ClientID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    ui->choosenClient->setText(index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString()+" "+index.model()->data(index.model()->index(index.row(), 2), Qt::DisplayRole).toString());
+    clearWidgets(ui->hoursLayout);
+}
+
+void GlowneOkno::chooseHourFromList(QPushButton* push) {
+    ui->choosenDate->setText("");
+    ui->choosenDate->setText(ui->calendarWidget->selectedDate().toString("dd-MM-yyyy")+" "+push->text());
+    QString dbDate = ui->calendarWidget->selectedDate().toString("yyyy-MM-dd")+" "+push->text().mid(0,8);
+    if(push->whatsThis() == "1"){
+        push->setStyleSheet("color: #66023C; background-color: #E887B7; border: 2px solid #66023C; font-weight: 800");
+        push->setWhatsThis("0");
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO wizyty(klienci_id, uslugi_id, uzytkownik_id, rezerwacja_od, rezerwacja_do, status) VALUES ('"+QString::number(ClientID)+"','"+QString::number(ServiceID)+"','"+QString::number(userID)+"', '"+dbDate+"', '"+dbDate+"', 'oczekuje')"));
+        tableCreator->executeInsertUpdateDelete();
+        connection->CloseConnection();
+        push->setText(push->text()+" - "+ui->choosenClient->text()+" - "+ui->choosenService->text());
+    }else {
+        push->setWhatsThis("1");
+        push->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
+        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+        connection->OpenConnection();
+        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM wizyty WHERE klienci_id='"+QString::number(ClientID)+"' AND uslugi_id='"+QString::number(ServiceID)+"' AND uzytkownik_id='"+QString::number(userID)+"' AND rezerwacja_od='"+dbDate+"'"));
+        tableCreator->executeInsertUpdateDelete();
+        connection->CloseConnection();
+        push->setText(push->text().mid(0,8));
+        ui->choosenDate->setText(push->text());
+    }
 }

@@ -121,6 +121,8 @@ private slots:
 
     void on_clientTable_clicked(const QModelIndex &index);
 
+    void chooseHourFromList(QPushButton* push);
+
 private:
     Ui::GlowneOkno *ui;
     QSqlQuery *serviceTableQuery;
@@ -135,6 +137,7 @@ private:
     QStringList currentid;
     QStringList currentServices;
     bool alreadyActivated = false;
+
 };
 
 #endif // GLOWNEOKNO_H
