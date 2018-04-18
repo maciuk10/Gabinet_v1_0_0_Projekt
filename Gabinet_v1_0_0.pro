@@ -30,7 +30,12 @@ SOURCES += \
     sqlconnect.cpp \
     tablefiller.cpp \
     clickablelabel.cpp \
-    date.cpp
+    usluga.cpp \
+    osoba.cpp \
+    pracownik.cpp \
+    klient.cpp \
+    data.cpp \
+    wizyta.cpp
 
 HEADERS += \
         logowanie.h \
@@ -38,7 +43,12 @@ HEADERS += \
     sqlconnect.h \
     tablefiller.h \
     clickablelabel.h \
-    date.h
+    usluga.h \
+    osoba.h \
+    pracownik.h \
+    klient.h \
+    data.h \
+    wizyta.h
 
 FORMS += \
         logowanie.ui \
