@@ -2,44 +2,30 @@
 #include "ui_glowneokno.h"
 
 
-GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
+GlowneOkno::GlowneOkno(QWidget *parent, int userID, SqlConnect *conn) :
     QMainWindow(parent),
     ui(new Ui::GlowneOkno)
 {
+    connection = conn;
     this->userID = userID;
     ui->setupUi(this);
-    ui->userDataSettingTab->setCurrentIndex(0);
-    ui->userDataSettingTab->tabBar()->hide();
-    ui->tabWidget->setCurrentIndex(0);
-    ui->tabWidget->tabBar()->hide();
 
-    this->setDefaultTableFormatting();
-    ui->calendarWidget->setFixedWidth(235);
-
+    this->setDefaultWidgetFormatting();
     this->prepareCharts();
 
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
-
-    TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT nazwa, branza, email, adres, kod_pocztowy, miasto, wojewodztwo, kraj, nip  FROM info_o_firmie WHERE firma_id = 1"));
-    QStringList companyData = clientFiller->executeSelect();
+    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT nazwa, branza, email, adres, kod_pocztowy, miasto, wojewodztwo, kraj, nip  FROM info_o_firmie WHERE firma_id = 1"));
+    QStringList companyData = tableCreator->executeSelect();
     QList<QLineEdit*> compData = ui->changeCompanyData->findChildren<QLineEdit*>();
     for(int i = 0; i < compData.length(); i++){
         compData[i]->setText(companyData[i]);
     }
 
-    connection->CloseConnection();
-
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
-
-    TableFiller *changeSimpleData = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko FROM uzytkownik WHERE uzytkownik_id = "+QString::number(userID)));
-    QStringList simpleData = changeSimpleData->executeSelect();
+    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko FROM uzytkownik WHERE uzytkownik_id = "+QString::number(userID)));
+    QStringList simpleData = tableCreator->executeSelect();
     QList<QLineEdit*> sData = ui->simpleDataGB->findChildren<QLineEdit*>();
     for(int i = 0; i < sData.length(); i++){
         sData[i]->setText(simpleData[i]);
     }
-    connection->CloseConnection();
 
     connect(ui->logout, SIGNAL(clicked(int)), ui->logout, SLOT(closeProgram(int)));
 
@@ -50,10 +36,7 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
     }
 
     if(userID != 0){
-        insertNames = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        insertNames->OpenConnection();
-
-        QSqlQuery *user = new QSqlQuery(insertNames->getSqlDatabaseObject());
+        QSqlQuery *user = new QSqlQuery(connection->getSqlDatabaseObject());
         user->prepare("SELECT uzytkownik_imie AS imie, uzytkownik_nazwisko AS nazwisko FROM uzytkownik WHERE uzytkownik_id=:userid");
         user->bindValue(":userid", QString::number(userID));
         user->exec();
@@ -67,7 +50,6 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
 
         this->setWindowTitle("Aplikacja Gabinet v1.0.0 @ Zalogowano: "+workerName+" "+workerPassword+"");
         ui->usernameProfile->setText("Witaj, "+workerName);
-        insertNames->CloseConnection();
     }else {
         qApp->exit();
     }
@@ -75,55 +57,38 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID) :
 
 GlowneOkno::~GlowneOkno()
 {
+    connection->CloseConnection();
     delete ui;
 }
 
 void GlowneOkno::on_reservationServiceSearch_clicked() {
     ui->serviceTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->serviceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania' FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->serviceReservationType->text()+"%'"));
     tableCreator->fillTheTable();
     ui->serviceTable->hideColumn(0);
-    delete tableCreator;
-
-    connection->CloseConnection();
-    delete connection;
 }
 
 void GlowneOkno::on_reservationClientSearch_clicked()
 {
     ui->clientTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->clientTable, QString("SELECT klienci_id AS ID, imie AS Imię, nazwisko AS Nazwisko FROM klienci WHERE CONCAT(imie, nazwisko) LIKE '%"+ui->clientReservationType->text()+"%'"));
     tableCreator->fillTheTable();
-    delete tableCreator;
-    connection->CloseConnection();
-    delete connection;
 }
 
 void GlowneOkno::on_workerReservationSearch_clicked()
 {
     ui->workerReservationTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->workerReservationTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workerReservationType->text()+"%'"));
     tableCreator->fillTheTable();
-    delete tableCreator;
-    connection->CloseConnection();
-    delete connection;
 }
 
 void GlowneOkno::on_clientSearch_Client_clicked() {
     ui->ClientsTable_Client->clearSelection();
     this->clearControlsFromCertainGroup(ui->clientData);
     ui->ClientsTable_Client->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->ClientsTable_Client, QString("SELECT klienci_id AS ID, imie AS Imię, nazwisko AS Nazwisko, email AS 'E-mail', telefon AS Telefon, ulica AS Ulica, numer AS Numer, poczta AS Kod, miejscowosc AS Miejscowosc FROM klienci WHERE CONCAT(imie, nazwisko, email, telefon, ulica, miejscowosc, numer, poczta) LIKE '%"+ui->clientsClientType->text()+"%'"));
     if(tableCreator->getcountOfRows() != -1){
@@ -131,17 +96,13 @@ void GlowneOkno::on_clientSearch_Client_clicked() {
     }else {
         qDebug() << "informacja o braku rekordów spełniających dane kryteria";
     }
-    delete tableCreator;
-    connection->CloseConnection();
-    delete connection;
 }
 
 void GlowneOkno::on_workerWorkSearch_clicked() {
     ui->workersWorkTable->setStyleSheet("border-image: none");
     ui->addServiceWorkTable->setStyleSheet("border-image: none");
     ui->servicesWorkTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
+
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkType->text()+"%'"));
 
     if(tableCreator->getcountOfRows() != -1){
@@ -149,13 +110,10 @@ void GlowneOkno::on_workerWorkSearch_clicked() {
     }else {
         qDebug() << "informacja o braku rekordów spełniających dane kryteria";
     }
-    connection->CloseConnection();
 }
 
 void GlowneOkno::on_servicesServiceSearch_clicked() {
     ui->servicesServiceTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
 
@@ -165,15 +123,10 @@ void GlowneOkno::on_servicesServiceSearch_clicked() {
     }else {
         qDebug() << "informacja o braku rekordów spełniających dane kryteria";
     }
-    delete tableCreator;
-    connection->CloseConnection();
-    delete connection;
 }
 
 void GlowneOkno::on_workersWorkersSearch_clicked() {
     ui->workersWorkersTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
 
@@ -182,9 +135,6 @@ void GlowneOkno::on_workersWorkersSearch_clicked() {
     }else {
         qDebug() << "informacja o braku rekordów spełniających dane kryteria";
     }
-    delete tableCreator;
-    connection->CloseConnection();
-    delete connection;
 }
 
 void GlowneOkno::setCurrentTab(int tabIndex){
@@ -199,7 +149,14 @@ void GlowneOkno::clearIndicators() {
     }
 }
 
-void GlowneOkno::setDefaultTableFormatting() {
+
+void GlowneOkno::setDefaultWidgetFormatting() {
+    ui->userDataSettingTab->setCurrentIndex(0);
+    ui->userDataSettingTab->tabBar()->hide();
+    ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->tabBar()->hide();
+    ui->calendarWidget->setFixedWidth(235);
+
     QList<QTableView*> tables = findChildren<QTableView*>();
     foreach (QTableView* t, tables) {
         t->horizontalHeader()->setStretchLastSection(true);
@@ -249,28 +206,18 @@ void GlowneOkno::on_workersWorkTable_clicked(const QModelIndex &index) {
     ui->workNameEdit->setText(workersData[1]);
     ui->workSurnameEdit->setText(workersData[2]);
 
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+workersData[0]+"'"));
     currentid = tableCreator->executeSelect();
-    connection->CloseConnection();
-
 
     ui->servicesWorkTable->setStyleSheet("border-image: none");
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesWorkTable, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+currentid[0]+"'"));
     currentServices = tableCreator->executeSelect();
     tableCreator->fillTheTable();
     ui->servicesWorkTable->setColumnHidden(0,true);
-    connection->CloseConnection();
 
     if(!alreadyActivated){
         ui->addServiceWorkTable->setStyleSheet("border-image: none");
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
-
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->addServiceWorkTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
 
         if(tableCreator->getcountOfRows() != -1){
@@ -279,7 +226,6 @@ void GlowneOkno::on_workersWorkTable_clicked(const QModelIndex &index) {
         }else {
             qDebug() << "informacja o braku rekordów spełniających dane kryteria";
         }
-        connection->CloseConnection();
         alreadyActivated = true;
     }
 }
@@ -313,8 +259,6 @@ void GlowneOkno::on_clearClients_clicked() {
 void GlowneOkno::on_addClientBtn_clicked() {
     bool valid = areLineEditsValid(ui->clientData);
     if(valid && ui->clientNameEdit->text().length() > 3 && ui->clientSurnameEdit->text().length() > 4){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO klienci (imie, nazwisko, email, telefon, ulica, numer, miejscowosc, poczta) VALUES ('"+ui->clientNameEdit->text()+"','"+ui->clientSurnameEdit->text()+"','"+ui->clientEmailEdit->text()+"','"+ui->clientPhoneEdit->text()+"','"+ui->clientStreetLine->text()+"','"+ui->clientStrNoLine->text()+"','"+ui->clientCityLine->text()+"','"+ui->clientCodeLine->text()+"')"));
         if(tableCreator->executeInsertUpdateDelete()) {
             QMessageBox::information(this, "Dodanie klienta", "Pomyślnie dodano klienta do bazy danych", QMessageBox::Ok);
@@ -322,13 +266,9 @@ void GlowneOkno::on_addClientBtn_clicked() {
             ui->ClientsTable_Client->clearSelection();
             TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->ClientsTable_Client, QString("SELECT klienci_id AS ID, imie AS Imię, nazwisko AS Nazwisko, email AS 'E-mail', telefon AS Telefon, ulica AS Ulica, numer AS Numer, poczta AS Kod, miejscowosc AS Miejscowosc FROM klienci WHERE CONCAT(imie, nazwisko, email, telefon, ulica, miejscowosc, numer, poczta) LIKE '%"+ui->clientsClientType->text()+"%'"));
             clientFiller->fillTheTable();
-            delete clientFiller;
         }else {
             QMessageBox::warning(this, "Błąd wewnętrzny", "Nie udało się dodać klienta do bazy. W celu uzyskania informacji skontaktuj się z twórcą oprogramowania. Kod błędu: WEW001", QMessageBox::Ok);
         }
-        delete tableCreator;
-        connection->CloseConnection();
-        delete connection;
     }else {
         QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
     }
@@ -337,8 +277,6 @@ void GlowneOkno::on_addClientBtn_clicked() {
 void GlowneOkno::on_clientModifyBtn_clicked() {
     bool valid = areLineEditsValid(ui->clientData);
     if(valid && ClientID > 0){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE klienci SET imie='"+ui->clientNameEdit->text()+"', nazwisko='"+ui->clientSurnameEdit->text()+"', email='"+ui->clientEmailEdit->text()+"', telefon='"+ui->clientPhoneEdit->text()+"', ulica='"+ui->clientStreetLine->text()+"', numer='"+ui->clientStrNoLine->text()+"', miejscowosc='"+ui->clientCityLine->text()+"', poczta='"+ui->clientCodeLine->text()+"' WHERE klienci_id="+QString::number(ClientID)));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Modyfikacja klienta", "Pomyślnie zmodyfikowano dane klienta z bazy danych", QMessageBox::Ok);
@@ -346,9 +284,6 @@ void GlowneOkno::on_clientModifyBtn_clicked() {
         ui->ClientsTable_Client->clearSelection();
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->ClientsTable_Client, QString("SELECT klienci_id AS ID, imie AS Imię, nazwisko AS Nazwisko, email AS 'E-mail', telefon AS Telefon, ulica AS Ulica, numer AS Numer, poczta AS Kod, miejscowosc AS Miejscowosc FROM klienci WHERE CONCAT(imie, nazwisko, email, telefon, ulica, miejscowosc, numer, poczta) LIKE '%"+ui->clientsClientType->text()+"%'"));
         clientFiller->fillTheTable();
-        delete clientFiller;
-        connection->CloseConnection();
-        delete connection;
     }else {
         QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
     }
@@ -356,8 +291,6 @@ void GlowneOkno::on_clientModifyBtn_clicked() {
 
 void GlowneOkno::on_clientRemoveBtn_clicked() {
     if(ClientID > 0){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM klienci WHERE klienci_id ="+QString::number(ClientID)));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Usunięcie klienta", "Pomyślnie usunięto dane klienta z bazy danych", QMessageBox::Ok);
@@ -365,9 +298,6 @@ void GlowneOkno::on_clientRemoveBtn_clicked() {
         ui->ClientsTable_Client->clearSelection();
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->ClientsTable_Client, QString("SELECT klienci_id AS ID, imie AS Imię, nazwisko AS Nazwisko, email AS 'E-mail', telefon AS Telefon, ulica AS Ulica, numer AS Numer, poczta AS Kod, miejscowosc AS Miejscowosc FROM klienci WHERE CONCAT(imie, nazwisko, email, telefon, ulica, miejscowosc, numer, poczta) LIKE '%"+ui->clientsClientType->text()+"%'"));
         clientFiller->fillTheTable();
-        delete clientFiller;
-        connection->CloseConnection();
-        delete connection;
     }
     ClientID = 0;
 }
@@ -506,16 +436,12 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
     }
     WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
     if(WorkerID != ""){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT po_od, po_do, wt_od, wt_do, sr_od, sr_do, cz_od, cz_do, pi_od, pi_do, so_od, so_do FROM godziny, uzytkownik WHERE godziny.uzytkownik_id = uzytkownik.uzytkownik_id AND uzytkownik.uzytkownik_nazwa='"+WorkerID+"'"));
         QStringList results = tableCreator->executeSelect();
         QList<QLineEdit*> hours = ui->workerHours->findChildren<QLineEdit*>();
         for(int i = 0; i < hours.length(); i++){
             hours[i]->setText(results[i]);
         }
-        connection->CloseConnection();
-        delete connection;
         this->clearControlsFromCertainGroup(ui->hoursSchema);
     }
 }
@@ -524,8 +450,6 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
     bool valid = areLineEditsValid(ui->workersEditFields) && areLineEditsValid(ui->workerHours);
 
     if(valid && WorkerID != ""){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET uzytkownik_nazwa='"+ui->workerIDEdit->text()+"', uzytkownik_imie='"+ui->workerNameEdit->text()+"', uzytkownik_nazwisko='"+ui->workerSurnameEdit->text()+"' WHERE uzytkownik_nazwa='"+WorkerID+"'"));
         tableCreator->executeInsertUpdateDelete();
         TableFiller *getID = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
@@ -549,9 +473,6 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
             hours[i]->setText(results[i]);
         }
 
-        //delete clientFiller;
-        connection->CloseConnection();
-        //delete connection;
         ui->workersWorkersTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->workersEditFields);
         this->clearControlsFromCertainGroup(ui->workHoursFields);
@@ -562,8 +483,6 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
 
 void GlowneOkno::on_removeWorkerBtn_clicked() {
     if(WorkerID != ""){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uzytkownik WHERE uzytkownik_nazwa='"+WorkerID+"'"));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Usunięcie pracownika", "Pomyślnie usunięto dane pracownika z bazy danych", QMessageBox::Ok);
@@ -572,9 +491,7 @@ void GlowneOkno::on_removeWorkerBtn_clicked() {
 
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->workersWorkersTable, QString("SELECT uzytkownik_nazwa AS ID, uzytkownik_imie AS Imię, uzytkownik_nazwisko AS Nazwisko FROM uzytkownik WHERE CONCAT(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko) LIKE '%"+ui->workersWorkersType->text()+"%'"));
         clientFiller->fillTheTable();
-        delete clientFiller;
-        connection->CloseConnection();
-        delete connection;
+
         ui->workersWorkersTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->workersEditFields);
         this->clearControlsFromCertainGroup(ui->workHoursFields);
@@ -614,8 +531,6 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
     bool valid = areLineEditsValid(ui->workersEditFields) && areLineEditsValid(ui->workerHours);
 
     if(valid && WorkerID == ""){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO uzytkownik(uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko, haslo, pracownik) VALUES ('"+ui->workerIDEdit->text()+"', '"+ui->workerNameEdit->text()+"', '"+ui->workerSurnameEdit->text()+"', PASSWORD('"+ui->workerIDEdit->text()+"'), '1')"));
         tableCreator->executeInsertUpdateDelete();
         TableFiller *getID = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+ui->workerIDEdit->text()+"'"));
@@ -640,9 +555,6 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
             hours[i]->setText(results[i]);
         }
 
-        //delete clientFiller;
-        connection->CloseConnection();
-        //delete connection;
         ui->workersWorkersTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->workersEditFields);
         this->clearControlsFromCertainGroup(ui->workHoursFields);
@@ -689,15 +601,12 @@ void GlowneOkno::on_serviceClearBtn_clicked() {
 void GlowneOkno::on_serviceRemoveBtn_clicked() {
     bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
     if(valid && ServiceID > 0){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uslugi WHERE uslugi_id='"+QString::number(ServiceID)+"'"));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Usunięcie usługi", "Pomyślnie usunięto dane usługi z bazy danych", QMessageBox::Ok);
         ui->servicesServiceTable->clearSelection();
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
         clientFiller->fillTheTable();
-        connection->CloseConnection();
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
     }
@@ -707,8 +616,6 @@ void GlowneOkno::on_serviceRemoveBtn_clicked() {
 void GlowneOkno::on_serviceModifyBtn_clicked() {
     bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
     if(valid && ServiceID > 0){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         if(ui->servicePrice->text().indexOf(",") != -1){
             QString price = ui->servicePrice->text();
             price.replace(",", ".");
@@ -719,7 +626,6 @@ void GlowneOkno::on_serviceModifyBtn_clicked() {
         QMessageBox::information(this, "Modyfikacja usługi", "Pomyślnie zmodyfikowano dane usługi z bazy danych", QMessageBox::Ok);
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
         clientFiller->fillTheTable();
-        connection->CloseConnection();
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
     }
@@ -729,8 +635,6 @@ void GlowneOkno::on_serviceModifyBtn_clicked() {
 void GlowneOkno::on_serviceAddBtn_clicked() {
     bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
     if(valid && ServiceID == 0){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         if(ui->servicePrice->text().indexOf(",") != -1){
             QString price = ui->servicePrice->text();
             price.replace(",", ".");
@@ -741,17 +645,16 @@ void GlowneOkno::on_serviceAddBtn_clicked() {
         QMessageBox::information(this, "Dodanie usługi", "Pomyślnie dodano dane usługi do bazy danych", QMessageBox::Ok);
         TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
         clientFiller->fillTheTable();
-        connection->CloseConnection();
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
+    }else{
+        qDebug()<<"warunek nie spełniony";
     }
 }
 
 void GlowneOkno::on_changeCompanyInfo_clicked() {
     bool valid = areLineEditsValid(ui->changeCompanyData);
     if(valid){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE info_o_firmie SET  nazwa='"+ui->compName->text()+"', branza='"+ui->compCat->text()+"', email='"+ui->comMail->text()+"', adres='"+ui->compAdr->text()+"', kod_pocztowy='"+ui->compCode->text()+"', miasto='"+ui->compCity->text()+"', wojewodztwo='"+ui->compVoivode->text()+"', kraj='"+ui->compCntry->text()+"', nip='"+ui->nip->text()+"' WHERE firma_id = 1"));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Zmiana danych firmy", "Pomyślnie zmodyfikowano dane firmy z bazy danych", QMessageBox::Ok);
@@ -767,8 +670,6 @@ void GlowneOkno::on_changeCompanyInfo_clicked() {
 void GlowneOkno::on_simpleDataChange_clicked() {
     bool valid = areLineEditsValid(ui->simpleDataGB);
     if(valid){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET uzytkownik_nazwa='"+ui->simpID->text()+"', uzytkownik_imie='"+ui->simpName->text()+"', uzytkownik_nazwisko='"+ui->simpSurname->text()+"' WHERE uzytkownik_nazwa='"+ui->simpID->text()+"'"));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Zmiana danych osobowych", "Pomyślnie zmodyfikowano dane osobowe w bazy danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
@@ -784,15 +685,12 @@ void GlowneOkno::on_simpleDataChange_clicked() {
 void GlowneOkno::on_changePasswordBtn_clicked() {
     bool valid = areLineEditsValid(ui->changePasswordGB) && (ui->newPass->text() == ui->oldPass->text());
     if(valid){
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET haslo=PASSWORD('"+ui->newPass->text()+"') WHERE uzytkownik_id="+QString::number(userID)));
         tableCreator->executeInsertUpdateDelete();
         if (tableCreator->getcountOfRows() <= 0){
             QMessageBox::warning(this, "Zmiana hasła użytkownika", "Pomyślnie zmodyfikowano hasło użytkownika w bazie danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
             clearControlsFromCertainGroup(ui->changePasswordGB);
         }
-        connection->CloseConnection();
     }
 }
 
@@ -805,21 +703,14 @@ void GlowneOkno::on_addServiceWorkTable_doubleClicked(const QModelIndex &index) 
     if(currentServiceIds.contains(idxToAdd)){
         QMessageBox::information(this, "Pracownik posiada wybraną kompetencję", "Wybrana usługa znajduje się już w kompetencjach pracownika i nie ma potrzeby jej dodawać. W celu usunięcia kompetencji pracownika kliknij dwukrotnie na wybraną usługę na liście usług pracownika.", QMessageBox::Ok);
     }else {
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO uzytkownik_usluga(uzytkownik_id, uslugi_id) VALUES ('"+currentid[0]+"','"+idxToAdd+"')"));
         tableCreator->executeInsertUpdateDelete();
         QMessageBox::information(this, "Zmiana kompetencji pracownika", "Pomyślnie zmodyfikowano kompetencje pracownika w bazie danych.", QMessageBox::Ok);
-        connection->CloseConnection();
-
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
 
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesWorkTable, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+currentid[0]+"'"));
         currentServices = tableCreator->executeSelect();
         tableCreator->fillTheTable();
         ui->servicesWorkTable->setColumnHidden(0,true);
-        connection->CloseConnection();
     }
 }
 
@@ -827,25 +718,19 @@ void GlowneOkno::on_workerReservationTable_clicked(const QModelIndex &index) {
     clearWidgets(ui->hoursLayout);
     QString currentUserID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
 
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+currentUserID+"'"));
     QStringList userIDList = tableCreator->executeSelect();
     userID = userIDList[0].toInt();
-    connection->CloseConnection();
 
     QDate today = ui->calendarWidget->selectedDate();
     QString todayStr = today.toString("dd.MM.yyyy");
     ui->choosenDate->setText(todayStr);
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
     QString selectedDay = giveDays();
     if(selectedDay == "śr"){
         selectedDay = "sr";
     }
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT "+selectedDay+"_od, "+selectedDay+"_do FROM godziny AS g, uzytkownik AS u WHERE u.uzytkownik_id=g.uzytkownik_id AND u.uzytkownik_nazwa='"+currentUserID+"'"));
     QStringList returnedHours = tableCreator->executeSelect();
-    connection->CloseConnection();
     generateDailySchedule(returnedHours[0], returnedHours[1]);
     ui->hoursField->setLayout(ui->hoursLayout);
 }
@@ -861,22 +746,14 @@ void GlowneOkno::on_calendarWidget_clicked(const QDate &date) {
 void GlowneOkno::on_servicesWorkTable_doubleClicked(const QModelIndex &index) {
     QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
 
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
-
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uzytkownik_usluga WHERE uzytkownik_id="+currentid[0]+" AND uslugi_id="+serviceIdx+""));
     tableCreator->executeInsertUpdateDelete();
     QMessageBox::information(this, "Zmiana kompetencji pracownika", "Pomyślnie zmodyfikowano kompetencje pracownika w bazie danych.", QMessageBox::Ok);
-    connection->CloseConnection();
-
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
 
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesWorkTable, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+currentid[0]+"'"));
     currentServices = tableCreator->executeSelect();
     tableCreator->fillTheTable();
     ui->servicesWorkTable->setColumnHidden(0,true);
-    connection->CloseConnection();
 }
 
 void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
@@ -887,13 +764,9 @@ void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
     QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
     qDebug() << serviceIdx;
 
-    connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    connection->OpenConnection();
-
     tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->workerReservationTable, QString("SELECT u.uzytkownik_nazwa AS ID, u.uzytkownik_imie AS Imię, u.uzytkownik_nazwisko AS Nazwisko FROM uzytkownik AS u, uzytkownik_usluga AS uu WHERE u.uzytkownik_id=uu.uzytkownik_id AND uu.uslugi_id="+serviceIdx+""));
     tableCreator->fillTheTable();
     ui->workerReservationTable->setStyleSheet("border-image: none");
-    connection->CloseConnection();
 }
 
 void GlowneOkno::on_clientTable_clicked(const QModelIndex &index) {
@@ -909,21 +782,21 @@ void GlowneOkno::chooseHourFromList(QPushButton* push) {
     if(push->whatsThis() == "1"){
         push->setStyleSheet("color: #66023C; background-color: #E887B7; border: 2px solid #66023C; font-weight: 800");
         push->setWhatsThis("0");
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO wizyty(klienci_id, uslugi_id, uzytkownik_id, rezerwacja_od, rezerwacja_do, status) VALUES ('"+QString::number(ClientID)+"','"+QString::number(ServiceID)+"','"+QString::number(userID)+"', '"+dbDate+"', '"+dbDate+"', 'oczekuje')"));
         tableCreator->executeInsertUpdateDelete();
-        connection->CloseConnection();
         push->setText(push->text()+" - "+ui->choosenClient->text()+" - "+ui->choosenService->text());
     }else {
         push->setWhatsThis("1");
         push->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
-        connection = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-        connection->OpenConnection();
         tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM wizyty WHERE klienci_id='"+QString::number(ClientID)+"' AND uslugi_id='"+QString::number(ServiceID)+"' AND uzytkownik_id='"+QString::number(userID)+"' AND rezerwacja_od='"+dbDate+"'"));
         tableCreator->executeInsertUpdateDelete();
-        connection->CloseConnection();
         push->setText(push->text().mid(0,8));
         ui->choosenDate->setText(push->text());
     }
+}
+
+void GlowneOkno::on_tabWidget_currentChanged(int index) {
+    userID = 0;
+    ServiceID = 0;
+    ClientID = 0;
 }

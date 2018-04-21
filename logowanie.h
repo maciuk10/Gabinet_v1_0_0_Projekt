@@ -6,6 +6,7 @@
 #include <QtSql>
 #include "sqlconnect.h"
 #include "glowneokno.h"
+#include "tablefiller.h"
 
 namespace Ui {
 class Logowanie;
@@ -25,6 +26,7 @@ private:
     Ui::Logowanie *ui;
     GlowneOkno *mainW;
     SqlConnect *login;
+    TableFiller *executeQuery;
 };
 
 #endif // LOGOWANIE_H

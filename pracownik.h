@@ -9,13 +9,13 @@ class Pracownik : public Osoba
 public:
     explicit Pracownik(QString imie, QString nazwisko, QString identyfikator, QString haslo_MD5);
 
-    QString getImie() const override;
-    QString getNazwisko() const override;
+    QString getImie() const;
+    QString getNazwisko() const;
 
     void setImie(QString imie);
     void setNazwisko(QString nazwisko);
 
-    void wypiszDane() override;
+    void wypiszDane();
 
     void dodaj();
     void usun(int id);

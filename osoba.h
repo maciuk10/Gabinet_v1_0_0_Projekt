@@ -11,7 +11,7 @@ public:
     virtual QString getImie() = 0;
     virtual QString getNazwisko() = 0;
 
-    virtual void setImie(QString imie);
+    virtual void setImie(QString imie) = 0;
     virtual void setNazwisko(QString nazwisko) = 0;
 
     virtual void wypiszDane() = 0;

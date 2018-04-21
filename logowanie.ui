@@ -17,6 +17,9 @@
    <iconset resource="img.qrc">
     <normaloff>:/gabinet/img_rc/calendar-7.png</normaloff>:/gabinet/img_rc/calendar-7.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QFrame" name="frame">
     <property name="geometry">
@@ -87,7 +90,7 @@
       <x>210</x>
       <y>80</y>
       <width>231</width>
-      <height>191</height>
+      <height>181</height>
      </rect>
     </property>
     <property name="title">
@@ -96,11 +99,18 @@
     <widget class="QPushButton" name="anulujBTN">
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>150</y>
+       <x>143</x>
+       <y>130</y>
        <width>75</width>
        <height>23</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#anulujBTN {
+	background-color: #B01030;
+	color: #fff;
+	border: none;
+}</string>
      </property>
      <property name="text">
       <string>Anuluj</string>
@@ -109,14 +119,24 @@
     <widget class="QPushButton" name="zalogujBTN">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>150</y>
+       <x>63</x>
+       <y>130</y>
        <width>75</width>
        <height>23</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#zalogujBTN {
+	background-color: #4FAB5B;
+	color: #fff;
+	border: none;
+}</string>
+     </property>
      <property name="text">
       <string>Zaloguj</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget">
@@ -179,9 +199,17 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Fira Sans</family>
+      <pointsize>8</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(255, 0, 0);
-font: 9pt &quot;Fira Sans&quot;;</string>
+     <string notr="true">color: rgb(255, 0, 0);</string>
     </property>
     <property name="text">
      <string/>

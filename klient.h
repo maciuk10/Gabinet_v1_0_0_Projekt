@@ -9,8 +9,8 @@ class Klient : public Osoba
 public:
     explicit Klient(QString imie, QString nazwisko, QString email, QString telefon, QString ulica, QString numerUlicy, QString kodPocztowy, QString miasto);
 
-    QString getImie() const override;
-    QString getNazwisko() const override;
+    QString getImie() const;
+    QString getNazwisko() const;
     QString getEmail() const;
     QString getTelefon() const;
     QString getUlica() const;
