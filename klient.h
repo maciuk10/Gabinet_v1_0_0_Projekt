@@ -9,6 +9,7 @@ class Klient : public Osoba
 public:
     explicit Klient(QString imie, QString nazwisko, QString email, QString telefon, QString ulica, QString numerUlicy, QString kodPocztowy, QString miasto);
 
+    //akcesory składowych prywatnych klasy
     QString getImie() const;
     QString getNazwisko() const;
     QString getEmail() const;
@@ -27,6 +28,7 @@ public:
     void setKodPocztowy(QString kodPocztowy);
     void setMiasto(QString miasto);
 
+    //metody zarządzające stanem danych
     void dodaj();
     void usun(int id);
     void modyfikuj();

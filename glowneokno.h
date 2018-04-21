@@ -5,14 +5,16 @@
 #include <QtSql>
 #include <typeinfo>
 #include <QGroupBox>
-#include "sqlconnect.h"
-#include "tablefiller.h"
 #include <QMessageBox>
 #include <QtCharts>
+
+#include "sqlconnect.h"
+#include "tablefiller.h"
 #include "data.h"
 #include "osoba.h"
 #include "usluga.h"
 #include "wizyta.h"
+#include "firma.h"
 
 namespace Ui {
 class GlowneOkno;
@@ -109,5 +111,6 @@ private:
     Data *rezerwacjaDo;
     Osoba *pracownik;
     Osoba *klient;
+    Firma *firma;
 };
 #endif // GLOWNEOKNO_H

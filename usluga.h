@@ -8,6 +8,8 @@ class Usluga
 {
 public:
     explicit Usluga(QString nazwa, double cena, QString opis, QDateTime czas);
+
+    //akcesory składowych prywatnych klasy
     QString getNazwa() const;
     double getCena() const;
     QString getOpis() const;
@@ -18,6 +20,7 @@ public:
     void setOpis(QString opis);
     void setCzas(QDateTime czas);
 
+    //metody zarządzające stanem danych
     void dodaj();
     void usun(int id);
     void modyfikuj();

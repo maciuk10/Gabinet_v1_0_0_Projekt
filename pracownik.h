@@ -9,6 +9,7 @@ class Pracownik : public Osoba
 public:
     explicit Pracownik(QString imie, QString nazwisko, QString identyfikator, QString haslo_MD5);
 
+    //akcesory składowych prywatnych klasy
     QString getImie() const;
     QString getNazwisko() const;
 
@@ -17,6 +18,7 @@ public:
 
     void wypiszDane();
 
+    //metody zarządzające stanem danych
     void dodaj();
     void usun(int id);
     void modyfikuj();

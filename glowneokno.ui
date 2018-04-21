@@ -425,7 +425,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
     <property name="tabBarAutoHide">
      <bool>false</bool>
@@ -451,6 +451,9 @@ font: 10pt &quot;Fira Sans&quot;;</string>
       </property>
       <property name="verticalHeaderFormat">
        <enum>QCalendarWidget::NoVerticalHeader</enum>
+      </property>
+      <property name="navigationBarVisible">
+       <bool>true</bool>
       </property>
      </widget>
      <widget class="QGroupBox" name="hoursField">

@@ -35,7 +35,8 @@ SOURCES += \
     pracownik.cpp \
     klient.cpp \
     data.cpp \
-    wizyta.cpp
+    wizyta.cpp \
+    firma.cpp
 
 HEADERS += \
         logowanie.h \
@@ -48,7 +49,8 @@ HEADERS += \
     pracownik.h \
     klient.h \
     data.h \
-    wizyta.h
+    wizyta.h \
+    firma.h
 
 FORMS += \
         logowanie.ui \
