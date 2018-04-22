@@ -1231,10 +1231,30 @@ font: 10pt &quot;Fira Sans&quot;;</string>
            <widget class="QLineEdit" name="serviceName"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="servicePrice"/>
+           <widget class="QLineEdit" name="servicePrice">
+            <property name="inputMask">
+             <string/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="serviceTime"/>
+           <widget class="QLineEdit" name="serviceTime">
+            <property name="inputMask">
+             <string>99:99</string>
+            </property>
+            <property name="text">
+             <string>00:00</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

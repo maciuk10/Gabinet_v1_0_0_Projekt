@@ -1,6 +1,6 @@
 #include "usluga.h"
 
-Usluga::Usluga(QString nazwa, double cena, QString opis, QDateTime czas) {
+Usluga::Usluga(QString nazwa, double cena, QString opis, QString czas): nazwa(nazwa), cena(cena), opis(opis), czas(czas) {
 
 }
 
@@ -16,7 +16,7 @@ QString Usluga::getOpis() const {
     return opis;
 }
 
-QDateTime Usluga::getCzas() const {
+QString Usluga::getCzas() const {
     return czas;
 }
 
@@ -32,20 +32,33 @@ void Usluga::setOpis(QString opis) {
     this->opis = opis;
 }
 
-void Usluga::setCzas(QDateTime czas) {
+void Usluga::setCzas(QString czas) {
     this->czas = czas;
 }
 
 void Usluga::dodaj() {
-
+    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *addService = new TableFiller(conn->getSqlDatabaseObject(), QString("INSERT INTO uslugi(nazwa, cena, czas, opis) VALUES ('"+this->getNazwa()+"','"+this->getCena()+"','"+this->getCzas()+"','"+this->getOpis()+"')"));
+    addService->executeInsertUpdateDelete();
+    conn->CloseConnection();
 }
 
 void Usluga::usun(int id) {
-
+    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *removeService = new TableFiller(conn->getSqlDatabaseObject(), QString("DELETE FROM uslugi WHERE uslugi_id='"+QString::number(id)+"'"));
+    removeService->executeInsertUpdateDelete();
+    conn->CloseConnection();
 }
 
-void Usluga::modyfikuj() {
-
+void Usluga::modyfikuj(int id) {
+    SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    qDebug() << this->getCena();
+    TableFiller *modifyService = new TableFiller(conn->getSqlDatabaseObject(), QString("UPDATE uslugi SET nazwa='"+this->getNazwa()+"', cena='"+QString::number(this->getCena())+"', czas='"+this->getCzas()+"', opis='"+this->getOpis()+"' WHERE uslugi_id='"+QString::number(id)+"'"));
+    modifyService->executeInsertUpdateDelete();
+    conn->CloseConnection();
 }
 
 void Usluga::wyszukiwanie(QString nazwa, QTableView *tabela) {

@@ -213,6 +213,7 @@ void GlowneOkno::on_modifyWorkerBtn_clicked() {
         this->clearControlsFromCertainGroup(ui->workersEditFields);
         this->clearControlsFromCertainGroup(ui->workHoursFields);
         connec->CloseConnection();
+        WorkerID = 0;
     }else {
         QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
     }
@@ -226,9 +227,7 @@ void GlowneOkno::on_removeWorkerBtn_clicked() {
         QMessageBox::information(this, "Usunięcie pracownika", "Pomyślnie usunięto dane pracownika z bazy danych", QMessageBox::Ok);
         clearControlsFromCertainGroup(ui->clientData);
         ui->ClientsTable_Client->clearSelection();
-
         Pracownik::wyszukiwanie(ui->workersWorkersType->text(), ui->workersWorkersTable);
-
         ui->workersWorkersTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->workersEditFields);
         this->clearControlsFromCertainGroup(ui->workHoursFields);
@@ -294,6 +293,7 @@ void GlowneOkno::on_addWorkerBtn_clicked() {
         this->clearControlsFromCertainGroup(ui->workersEditFields);
         this->clearControlsFromCertainGroup(ui->workHoursFields);
         connec->CloseConnection();
+        WorkerID = 0;
     }else {
         QMessageBox::warning(this, "Wypełnij pola formularza", "Wymagania walidacyjne formularza nie zostały spełnione", QMessageBox::Ok);
     }
@@ -320,7 +320,6 @@ void GlowneOkno::on_servicesServiceTable_clicked(const QModelIndex &index) {
     for(int i = 0; i < serviceData.length(); i++){
         serviceData[i]->setText(index.model()->data(index.model()->index(index.row(), i+1), Qt::DisplayRole).toString());
     }
-
     ServiceID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
     ui->serviceDesc->setText(index.model()->data(index.model()->index(index.row(), 4), Qt::DisplayRole).toString());
 }
@@ -335,12 +334,14 @@ void GlowneOkno::on_serviceClearBtn_clicked() {
 void GlowneOkno::on_serviceRemoveBtn_clicked() {
     bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
     if(valid && ServiceID > 0){
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uslugi WHERE uslugi_id='"+QString::number(ServiceID)+"'"));
-        tableCreator->executeInsertUpdateDelete();
+        usluga = new Usluga(ui->serviceName->text(),ui->servicePrice->text().toDouble(),ui->serviceDesc->toPlainText(), ui->serviceTime->text());
+        usluga->usun(ServiceID);
+
         QMessageBox::information(this, "Usunięcie usługi", "Pomyślnie usunięto dane usługi z bazy danych", QMessageBox::Ok);
+
+        Usluga::wyszukiwanie(ui->servicesServiceType->text(), ui->servicesServiceTable);
+
         ui->servicesServiceTable->clearSelection();
-        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
-        clientFiller->fillTheTable();
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
     }
@@ -350,16 +351,16 @@ void GlowneOkno::on_serviceRemoveBtn_clicked() {
 void GlowneOkno::on_serviceModifyBtn_clicked() {
     bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
     if(valid && ServiceID > 0){
-        if(ui->servicePrice->text().indexOf(",") != -1){
-            QString price = ui->servicePrice->text();
-            price.replace(",", ".");
-            ui->servicePrice->setText(price);
-        }
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uslugi SET nazwa='"+ui->serviceName->text()+"', cena='"+ui->servicePrice->text()+"', czas='"+ui->serviceTime->text()+"', opis='"+ui->serviceDesc->toPlainText()+"' WHERE uslugi_id='"+QString::number(ServiceID)+"'"));
-        tableCreator->executeInsertUpdateDelete();
+        ui->servicePrice->setText(priceFormatter(ui->servicePrice->text()));
+        double price = ui->servicePrice->text().toDouble();
+
+        usluga = new Usluga(ui->serviceName->text(), price,ui->serviceDesc->toPlainText(), ui->serviceTime->text());
+        usluga->modyfikuj(ServiceID);
+
         QMessageBox::information(this, "Modyfikacja usługi", "Pomyślnie zmodyfikowano dane usługi z bazy danych", QMessageBox::Ok);
-        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
-        clientFiller->fillTheTable();
+
+        Usluga::wyszukiwanie(ui->servicesServiceType->text(), ui->servicesServiceTable);
+
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
     }
@@ -369,18 +370,18 @@ void GlowneOkno::on_serviceModifyBtn_clicked() {
 void GlowneOkno::on_serviceAddBtn_clicked() {
     bool valid = areLineEditsValid(ui->serviceData) && areTextEditsValid(ui->serviceData);
     if(valid && ServiceID == 0){
-        if(ui->servicePrice->text().indexOf(",") != -1){
-            QString price = ui->servicePrice->text();
-            price.replace(",", ".");
-            ui->servicePrice->setText(price);
-        }
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO uslugi(nazwa, cena, czas, opis) VALUES ('"+ui->serviceName->text()+"','"+ui->servicePrice->text()+"','"+ui->serviceTime->text()+"','"+ui->serviceDesc->toPlainText()+"')"));
-        tableCreator->executeInsertUpdateDelete();
+
+        ui->servicePrice->setText(priceFormatter(ui->servicePrice->text()));
+        usluga = new Usluga(ui->serviceName->text(),ui->servicePrice->text().toDouble(),ui->serviceDesc->toPlainText(), ui->serviceTime->text());
+        usluga->dodaj();
+
         QMessageBox::information(this, "Dodanie usługi", "Pomyślnie dodano dane usługi do bazy danych", QMessageBox::Ok);
-        TableFiller *clientFiller = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesServiceTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
-        clientFiller->fillTheTable();
+
+        Usluga::wyszukiwanie(ui->servicesServiceType->text(), ui->servicesServiceTable);
+
         ui->servicesServiceTable->clearSelection();
         this->clearControlsFromCertainGroup(ui->serviceData);
+        ServiceID = 0;
     }else{
         QMessageBox::information(this, "Błąd walidacji", "Wprowadzone dane nie spełniają wymagań walidacyjnych. Popraw je i spróbuj ponownie", QMessageBox::Ok);
     }
@@ -389,15 +390,13 @@ void GlowneOkno::on_serviceAddBtn_clicked() {
 void GlowneOkno::on_changeCompanyInfo_clicked() {
     bool valid = areLineEditsValid(ui->changeCompanyData);
     if(valid){
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE info_o_firmie SET  nazwa='"+ui->compName->text()+"', branza='"+ui->compCat->text()+"', email='"+ui->comMail->text()+"', adres='"+ui->compAdr->text()+"', kod_pocztowy='"+ui->compCode->text()+"', miasto='"+ui->compCity->text()+"', wojewodztwo='"+ui->compVoivode->text()+"', kraj='"+ui->compCntry->text()+"', nip='"+ui->nip->text()+"' WHERE firma_id = 1"));
-        tableCreator->executeInsertUpdateDelete();
+        firma = new Firma(ui->compName->text(), ui->compCat->text(), ui->comMail->text(), ui->compAdr->text(), ui->compCode->text(), ui->compCity->text(), ui->compVoivode->text(), ui->compCntry->text(), ui->nip->text());
+        firma->modyfikuj();
+
         QMessageBox::information(this, "Zmiana danych firmy", "Pomyślnie zmodyfikowano dane firmy z bazy danych", QMessageBox::Ok);
-        TableFiller *company = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT * FROM info_o_firmie"));
-        QStringList companyData = company->executeSelect();
-        QList<QLineEdit*> companyList = ui->changeCompanyData->findChildren<QLineEdit*>();
-        for(int i = 0; i < companyList.length(); i++){
-            companyList[i]->setText(companyData[i+1]);
-        }
+
+        QStringList companyData = Firma::podajInfo();
+        firma->pokazInfo(ui->changeCompanyData, companyData);
     }
 }
 
@@ -715,6 +714,13 @@ void GlowneOkno::dataLinkSwitch(int idx, QLabel *indicator) {
     ui->userDataSettingTab->setCurrentIndex(idx);
     this->clearIndicators();
     indicator->setStyleSheet("background-color: rgb(255,255,255)");
+}
+
+QString GlowneOkno::priceFormatter(QString price) {
+    if(price.indexOf(",") != -1){
+        price.replace(",",".");
+    }
+    return price;
 }
 
 

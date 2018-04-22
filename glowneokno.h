@@ -40,7 +40,7 @@ public:
     void clearWidgets(QLayout *layout);                                         //usunięcie wszystkich kontrolek dla danego layoutu
     QString giveDays();                                                         //zwrócenie krótkiej nazwy dla aktualnej daty
     void dataLinkSwitch(int idx, QLabel *indicator);                            //przełączanie pomiędzy przyciskami na panelu ustawienia
-
+    QString priceFormatter(QString price);                                      //ewentualne formatowanie ceny z przecinka na kropkę
 
 private slots:
     //sloty - definicje funkcji typu eventListener tworzone według schematu on_kontrolka_sygnał dzięki macro Q_OBJECT

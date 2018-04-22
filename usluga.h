@@ -10,30 +10,30 @@
 class Usluga
 {
 public:
-    explicit Usluga(QString nazwa, double cena, QString opis, QDateTime czas);
+    explicit Usluga(QString nazwa, double cena, QString opis, QString czas);
 
     //akcesory składowych prywatnych klasy
     QString getNazwa() const;
     double getCena() const;
     QString getOpis() const;
-    QDateTime getCzas() const;
+    QString getCzas() const;
 
     void setNazwa(QString nazwa);
     void setCena(double cena);
     void setOpis(QString opis);
-    void setCzas(QDateTime czas);
+    void setCzas(QString czas);
 
     //metody zarządzające stanem danych
     void dodaj();
     void usun(int id);
-    void modyfikuj();
+    void modyfikuj(int id);
     static void wyszukiwanie(QString nazwa, QTableView *tabela);
 
 private:
     QString nazwa;
     double cena;
     QString opis;
-    QDateTime czas;
+    QString czas;
 };
 
 #endif // USLUGA_H

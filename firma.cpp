@@ -75,6 +75,11 @@ void Firma::setNip(QString nip) {
 }
 
 void Firma::modyfikuj() {
+    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *modifyCompany = new TableFiller(conn->getSqlDatabaseObject(), QString("UPDATE info_o_firmie SET  nazwa='"+this->getNazwa()+"', branza='"+this->getBranza()+"', email='"+this->getEmail()+"', adres='"+this->getAdres()+"', kod_pocztowy='"+this->getKodPocztowy()+"', miasto='"+this->getMiasto()+"', wojewodztwo='"+this->getWojewodztwo()+"', kraj='"+this->getKraj()+"', nip='"+this->getNip()+"' WHERE firma_id = 1"));
+    modifyCompany->executeInsertUpdateDelete();
+    conn->CloseConnection();
 }
 
 QStringList Firma::podajInfo() {
