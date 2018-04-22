@@ -1,7 +1,12 @@
 #ifndef FIRMA_H
 #define FIRMA_H
 
-#include <QString>
+#include <Qt>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QList>
+#include "sqlconnect.h"
+#include "tablefiller.h"
 
 class Firma
 {
@@ -30,6 +35,8 @@ public:
 
     //metody zarządzające stanem danych
     void modyfikuj();
+    static QStringList podajInfo();
+    void pokazInfo(QGroupBox *gb, QStringList dane);
 
 private:
     QString nazwa;

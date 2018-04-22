@@ -25,8 +25,8 @@ void Logowanie::on_zalogujBTN_clicked() {
 
     if(rows == 1){
         mainW = new GlowneOkno(this, userID, login);
-        mainW->show();
         this->hide();
+        mainW->show();
     }else {
         ui->wrongPasswordLabel->setText("Błąd logowania: Nieprawidłowy login lub hasło");
     }

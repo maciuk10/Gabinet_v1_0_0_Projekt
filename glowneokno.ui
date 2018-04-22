@@ -425,7 +425,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <property name="tabBarAutoHide">
      <bool>false</bool>

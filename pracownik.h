@@ -1,32 +1,44 @@
 #ifndef PRACOWNIK_H
 #define PRACOWNIK_H
 
-#include "osoba.h"
+#include <Qt>
+#include <QApplication>
 #include <QString>
+#include <QGroupBox>
+#include <QLineEdit>
+
+#include "osoba.h"
+#include "sqlconnect.h"
+#include "tablefiller.h"
 
 class Pracownik : public Osoba
 {
 public:
-    explicit Pracownik(QString imie, QString nazwisko, QString identyfikator, QString haslo_MD5);
+    explicit Pracownik(QString imie, QString nazwisko, QString identyfikator);
 
     //akcesory składowych prywatnych klasy
-    QString getImie() const;
-    QString getNazwisko() const;
+    QString getImie() const override;
+    QString getNazwisko() const override;
+    QString getIdentyfikator() const;
 
-    void setImie(QString imie);
-    void setNazwisko(QString nazwisko);
+    void setImie(QString imie) override;
+    void setNazwisko(QString nazwisko) override;
+    void setIdentyfikator(QString identyfikator);
 
-    void wypiszDane();
+    void wypiszDane(QWidget *widget) override;
+    static QStringList pokazInfo(int user);
 
     //metody zarządzające stanem danych
-    void dodaj();
-    void usun(int id);
-    void modyfikuj();
-    void wyszukiwanie(QString nazwa);
+    int dodaj() override;
+    void usun(int id) override;
+    void modyfikuj(int identify) override;
+    static void wyszukiwanie(QString nazwa, QTableView *tabela);
+
+    void mojeUslugi();
+    void pokazGodzinyPracy(QGroupBox *gb);
 
 private:
     QString identyfikator;
-    QString haslo_MD5;
 };
 
 #endif // PRACOWNIK_H

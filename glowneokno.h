@@ -39,7 +39,7 @@ public:
     void generateDailySchedule(QString hourFrom, QString hourTo);               //generowanie interfejsu godzin dla danego pracownika
     void clearWidgets(QLayout *layout);                                         //usunięcie wszystkich kontrolek dla danego layoutu
     QString giveDays();                                                         //zwrócenie krótkiej nazwy dla aktualnej daty
-
+    void dataLinkSwitch(int idx, QLabel *indicator);                            //przełączanie pomiędzy przyciskami na panelu ustawienia
 
 
 private slots:
@@ -87,7 +87,6 @@ private slots:
     void on_serviceTable_clicked(const QModelIndex &index);
     void on_clientTable_clicked(const QModelIndex &index);
     void chooseHourFromList(QPushButton* push);
-
     void on_tabWidget_currentChanged(int index);
 
 private:
@@ -98,7 +97,7 @@ private:
     int userID;
     int ClientID;
     int ServiceID;
-    QString WorkerID;
+    int WorkerID;
     QStringList currentid;
     QStringList currentServices;
     bool alreadyActivated = false;
@@ -109,8 +108,9 @@ private:
     SqlConnect *insertNames;
     Data *rezerwacjaOd;
     Data *rezerwacjaDo;
-    Osoba *pracownik;
-    Osoba *klient;
+    Pracownik *pracownik;
+    Klient *klient;
     Firma *firma;
+    Usluga *usluga;
 };
 #endif // GLOWNEOKNO_H

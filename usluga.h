@@ -4,6 +4,9 @@
 #include <QString>
 #include <QDateTime>
 
+#include "sqlconnect.h"
+#include "tablefiller.h"
+
 class Usluga
 {
 public:
@@ -24,7 +27,7 @@ public:
     void dodaj();
     void usun(int id);
     void modyfikuj();
-    void wyszukiwanie(QString nazwa);
+    static void wyszukiwanie(QString nazwa, QTableView *tabela);
 
 private:
     QString nazwa;

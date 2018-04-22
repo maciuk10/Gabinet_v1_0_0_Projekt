@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QString>
+#include <Qt>
+#include <QMessageBox>
 
 
 class SqlConnect

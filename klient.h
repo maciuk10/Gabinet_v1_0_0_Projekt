@@ -2,7 +2,10 @@
 #define KLIENT_H
 
 #include "osoba.h"
+#include "sqlconnect.h"
+#include "tablefiller.h"
 #include <QString>
+#include <QTableView>
 
 class Klient : public Osoba
 {
@@ -10,8 +13,8 @@ public:
     explicit Klient(QString imie, QString nazwisko, QString email, QString telefon, QString ulica, QString numerUlicy, QString kodPocztowy, QString miasto);
 
     //akcesory składowych prywatnych klasy
-    QString getImie() const;
-    QString getNazwisko() const;
+    QString getImie() const override;
+    QString getNazwisko() const override;
     QString getEmail() const;
     QString getTelefon() const;
     QString getUlica() const;
@@ -19,8 +22,8 @@ public:
     QString getKodPocztowy() const;
     QString getMiasto() const;
 
-    void setImie(QString imie);
-    void setNazwisko(QString nazwisko);
+    void setImie(QString imie) override;
+    void setNazwisko(QString nazwisko) override;
     void setEmail(QString email);
     void setTelefon(QString telefon);
     void setUlica(QString ulica);
@@ -29,10 +32,11 @@ public:
     void setMiasto(QString miasto);
 
     //metody zarządzające stanem danych
-    void dodaj();
-    void usun(int id);
-    void modyfikuj();
-    void wyszukiwanie(QString nazwa);
+    void wypiszDane(QWidget *widget) override;
+    int dodaj() override;
+    void usun(int id) override;
+    void modyfikuj(int identify) override;
+    static void wyszukiwanie(QString nazwa, QTableView *tabela);
 
 private:
     QString email;

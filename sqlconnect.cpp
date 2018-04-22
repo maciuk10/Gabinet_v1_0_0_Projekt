@@ -24,9 +24,7 @@ void SqlConnect::OpenConnection() {
         db.setPort(port);
     }
     if(!db.open()){
-        qDebug() << "Nie połączono z bazą danych. Błąd: "<< db.lastError().text();
-    }else {
-        qDebug() << "Połączono pomyślnie z bazą";
+        QMessageBox::warning(nullptr, "Błąd połączenia", "Nie połączono z bazą danych", QMessageBox::Ok);
     }
 }
 
