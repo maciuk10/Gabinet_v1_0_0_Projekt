@@ -35,6 +35,7 @@ public:
     QDateTime getData() const;
     QString getDataTekstowa(QString formatDaty) const;
     void setData(QDateTime data);
+    void setData(QDate data);
     void setData(int dzien, int miesiac, int rok, int godz, int min, int sek);
     QDateTime dodajCzas(int s);
     int operator -(const Data &d1);

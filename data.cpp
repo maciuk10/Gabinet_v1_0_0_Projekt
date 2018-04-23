@@ -68,6 +68,15 @@ void Data::setData(QDateTime data) {
     this->sek = data.time().second();
 }
 
+void Data::setData(QDate data) {
+    this->rok = data.year();
+    this->miesiac = data.month();
+    this->dzien = data.day();
+    this->godz = 0;
+    this->min = 0;
+    this->sek = 0;
+}
+
 void Data::setData(int dzien, int miesiac, int rok, int godz, int min, int sek) {
     this->dzien = dzien;
     this->miesiac = miesiac;

@@ -182,6 +182,11 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
         clientData[i]->setText(index.model()->data(index.model()->index(index.row(), clientData.length() - i), Qt::DisplayRole).toString());
     }
     WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    if(WorkerID == userID){
+        ui->removeWorkerBtn->setEnabled(false);
+    }else {
+        ui->removeWorkerBtn->setEnabled(true);
+    }
     if(WorkerID != 0){
         pracownik = new Pracownik(ui->workerNameEdit->text(),ui->workerSurnameEdit->text(), ui->workerIDEdit->text());
         pracownik->pokazGodzinyPracy(ui->workerHours);
@@ -509,6 +514,10 @@ void GlowneOkno::chooseHourFromList(QPushButton* push) {
     }else {
         push->setWhatsThis("1");
         push->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
+        if(push->statusTip() != ""){
+            VisitID = push->statusTip().toInt();
+            push->setStatusTip("");
+        }
         wizyta->usun(VisitID);
         push->setText(push->text().mid(0,8));
         ui->choosenDate->setText(ui->calendarWidget->selectedDate().toString("dd-MM-yyyy"));
@@ -547,8 +556,7 @@ void GlowneOkno::generateDailySchedule(QString hourFrom, QString hourTo) {
     int amountOfBlocks = amountOfMinutes / 30;
     for(int i = 0; i < amountOfBlocks; i++){
         QPushButton* hour = new QPushButton(godzOd.getDataTekstowa("hh:mm:ss"), this);
-        hour->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
-        hour->setWhatsThis("1");
+        hourHasReservation(hour, godzOd.getDataTekstowa("hh:mm:ss"), WorkerID);
         ui->hoursLayout->addWidget(hour);
         QDateTime increasedData = godzOd.dodajCzas(1800);
         godzOd.setData(increasedData);
@@ -708,6 +716,26 @@ QString GlowneOkno::priceFormatter(QString price) {
         price.replace(",",".");
     }
     return price;
+}
+
+void GlowneOkno::hourHasReservation(QPushButton *push, QString godz, int user) {
+    Data *aktualnaData = new Data();
+    aktualnaData->setData(ui->calendarWidget->selectedDate());
+    QString dbarg = aktualnaData->getDataTekstowa("yyyy-MM-dd")+" "+godz;
+    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *isReserved = new TableFiller(conn->getSqlDatabaseObject(), QString("SELECT k.imie, k.nazwisko, u.nazwa, w.wizyty_id FROM klienci AS k, uslugi AS u, wizyty as W WHERE k.klienci_id=w.klienci_id AND u.uslugi_id=w.uslugi_id AND w.rezerwacja_od='"+dbarg+"' AND w.uzytkownik_id="+QString::number(user)));
+    QStringList reservationData = isReserved->executeSelect();
+    if(isReserved->getcountOfRows() == 1){
+        push->setStyleSheet("color: #66023C; background-color: #E887B7; border: 2px solid #66023C; font-weight: 800");
+        push->setWhatsThis("0");
+        push->setText(push->text()+" - "+reservationData[0]+" "+reservationData[1]+" - "+reservationData[2]);
+        push->setStatusTip(reservationData[3]);
+    }else {
+        push->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
+        push->setWhatsThis("1");
+    }
+    conn->CloseConnection();
 }
 
 
