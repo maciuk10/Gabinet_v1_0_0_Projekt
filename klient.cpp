@@ -69,8 +69,11 @@ void Klient::setMiasto(QString miasto) {
     this->miasto = miasto;
 }
 
-void Klient::wypiszDane(QWidget *widget) {
-    //some things to do
+void Klient::wypiszDane(QWidget *widget, QStringList dodatkoweInfo) {
+    QList<QLineEdit*> clientData = widget->findChildren<QLineEdit*>();
+    for(int i = 0; i < clientData.length(); i++){
+        clientData[i]->setText(dodatkoweInfo[i+1]);
+    }
 }
 
 int Klient::dodaj() {

@@ -114,5 +114,7 @@ private:
     Firma *firma;
     Usluga *usluga;
     Wizyta *wizyta;
+    Osoba *przedstawPracownik;
+    Osoba *przedstawKlient;
 };
 #endif // GLOWNEOKNO_H

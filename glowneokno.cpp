@@ -8,6 +8,12 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID, SqlConnect *conn) :
 {
     ui->setupUi(this);
 
+    Data jedna = Data();
+    jedna.setData(1,5,2018, 9, 9, 5);
+    Data druga = Data();
+    druga.setData(1,5,2018, 9, 18, 30);
+    int roznica = 0;
+    roznica = druga-jedna;
     this->connection = conn;
     this->userID = userID;
     this->setDefaultWidgetFormatting();
@@ -18,7 +24,10 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID, SqlConnect *conn) :
     pracownik->wypiszDoFormularza(ui->simpleDataGB, userInfo);
 
     if(userID != 0){
-        pracownik->wypiszDane(this);
+        przedstawPracownik = new Pracownik(userInfo[0], userInfo[1], userInfo[2]);
+        QStringList dodatkoweInfo;
+        dodatkoweInfo.append("Zalogowano");
+        przedstawPracownik->wypiszDane(this, dodatkoweInfo);
         ui->usernameProfile->setText("Witaj, "+pracownik->getImie());
     }else {
         qApp->exit();
@@ -105,10 +114,19 @@ void GlowneOkno::on_workersWorkTable_clicked(const QModelIndex &index) {
 }
 
 void GlowneOkno::on_ClientsTable_Client_clicked(const QModelIndex &index) {
-    QList<QLineEdit*> clientData = ui->clientData->findChildren<QLineEdit*>();
-    for(int i = 0; i < clientData.length(); i++){
-        clientData[i]->setText(index.model()->data(index.model()->index(index.row(), i+1), Qt::DisplayRole).toString());
+    QStringList dodatkoweInfo;
+    for(int i = 0; i < index.model()->columnCount(); i++){
+        dodatkoweInfo.append(index.model()->data(index.model()->index(index.row(), i), Qt::DisplayRole).toString());
     }
+    przedstawKlient = new Klient(index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 2), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 3), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 4), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 5), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 6), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 7), Qt::DisplayRole).toString(),
+                                 index.model()->data(index.model()->index(index.row(), 8), Qt::DisplayRole).toString());
+    przedstawKlient->wypiszDane(ui->clientData, dodatkoweInfo);
     ClientID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
 }
 
@@ -493,7 +511,7 @@ void GlowneOkno::chooseHourFromList(QPushButton* push) {
         push->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
         wizyta->usun(VisitID);
         push->setText(push->text().mid(0,8));
-        ui->choosenDate->setText(push->text());
+        ui->choosenDate->setText(ui->calendarWidget->selectedDate().toString("dd-MM-yyyy"));
     }
 }
 
@@ -521,16 +539,19 @@ void GlowneOkno::setHourSchema(QString from, QString to, QGroupBox *gb) {
 }
 
 void GlowneOkno::generateDailySchedule(QString hourFrom, QString hourTo) {
-    QTime hFrom = QTime::fromString(hourFrom, "hh:mm:ss");
-    QTime hTo = QTime::fromString(hourTo, "hh:mm:ss");
-    int amountOfMinutes = hFrom.secsTo(hTo) / 60;
+    Data godzOd = Data();
+    Data godzDo = Data();
+    godzOd.setData(QDateTime::fromString(hourFrom, "hh:mm:ss"));
+    godzDo.setData(QDateTime::fromString(hourTo, "hh:mm:ss"));
+    int amountOfMinutes = (godzDo - godzOd) / 60;
     int amountOfBlocks = amountOfMinutes / 30;
     for(int i = 0; i < amountOfBlocks; i++){
-        QPushButton* hour = new QPushButton(hFrom.toString(), this);
+        QPushButton* hour = new QPushButton(godzOd.getDataTekstowa("hh:mm:ss"), this);
         hour->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
         hour->setWhatsThis("1");
         ui->hoursLayout->addWidget(hour);
-        hFrom = hFrom.addSecs(1800);
+        QDateTime increasedData = godzOd.dodajCzas(1800);
+        godzOd.setData(increasedData);
         connect(hour, &QPushButton::clicked, [=]{
             chooseHourFromList(hour);
         });

@@ -27,7 +27,7 @@ public:
     void setIdentyfikator(QString identyfikator);
     void setMD5(QString md5);
 
-    void wypiszDane(QWidget *widget) override;
+    void wypiszDane(QWidget *widget, QStringList dodatkoweInfo) override;
     static QStringList pokazInfo(int user);
     void wypiszDoFormularza(QGroupBox *gb, QStringList data);
 

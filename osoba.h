@@ -17,7 +17,7 @@ public:
     virtual void setNazwisko(QString nazwisko) = 0;
 
     //metody przesłaniane przez metody klas pochodnych (wirtualne)
-    virtual void wypiszDane(QWidget* widget) = 0;
+    virtual void wypiszDane(QWidget* widget, QStringList dodatkoweInfo) = 0;
     virtual int dodaj() = 0;
     virtual void usun(int id) = 0;
     virtual void modyfikuj(int identify) = 0;

@@ -55,7 +55,6 @@ void Usluga::usun(int id) {
 void Usluga::modyfikuj(int id) {
     SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
     conn->OpenConnection();
-    qDebug() << this->getCena();
     TableFiller *modifyService = new TableFiller(conn->getSqlDatabaseObject(), QString("UPDATE uslugi SET nazwa='"+this->getNazwa()+"', cena='"+QString::number(this->getCena())+"', czas='"+this->getCzas()+"', opis='"+this->getOpis()+"' WHERE uslugi_id='"+QString::number(id)+"'"));
     modifyService->executeInsertUpdateDelete();
     conn->CloseConnection();

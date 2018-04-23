@@ -34,8 +34,8 @@ void Pracownik::setMD5(QString md5) {
     this->md5 = md5;
 }
 
-void Pracownik::wypiszDane(QWidget *widget) {
-    widget->setWindowTitle("Aplikacja Gabinet v1.0.0 @ Zalogowano: "+this->getImie()+" "+this->getNazwisko());
+void Pracownik::wypiszDane(QWidget *widget, QStringList dodatkoweInfo) {
+    widget->setWindowTitle("Aplikacja Gabinet v1.0.0 @ "+dodatkoweInfo[0]+" "+this->getImie()+" "+this->getNazwisko());
 }
 
 QStringList Pracownik::pokazInfo(int user) {

@@ -6,6 +6,7 @@
 #include "tablefiller.h"
 #include <QString>
 #include <QTableView>
+#include <QLineEdit>
 
 class Klient : public Osoba
 {
@@ -32,7 +33,7 @@ public:
     void setMiasto(QString miasto);
 
     //metody zarządzające stanem danych
-    void wypiszDane(QWidget *widget) override;
+    void wypiszDane(QWidget *widget, QStringList dodatkoweInfo) override;
     int dodaj() override;
     void usun(int id) override;
     void modyfikuj(int identify) override;

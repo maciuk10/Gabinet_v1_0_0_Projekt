@@ -24,9 +24,6 @@ bool TableFiller::executeInsertUpdateDelete(){
     if(db.open()){
         query->prepare(sqlCommand);
         if(!query->exec()){
-            qDebug() << query->lastError().text();
-            qDebug() << query->lastError().driverText();
-            qDebug() << query->lastError().databaseText();
             return false;
         }else {
             return true;
@@ -37,9 +34,6 @@ bool TableFiller::executeInsertUpdateDelete(){
 QStringList TableFiller::executeSelect(){
     QStringList elements;
     if(!query->exec(sqlCommand)){
-        qDebug() << query->lastError().text();
-        qDebug() << query->lastError().driverText();
-        qDebug() << query->lastError().databaseText();
     }else {
         while(query->next()){
             for(int i = 0; i < query->record().count(); i++){
