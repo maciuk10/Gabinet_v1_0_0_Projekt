@@ -15,6 +15,7 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID, SqlConnect *conn) :
 
     QStringList userInfo = Pracownik::pokazInfo(userID);
     pracownik = new Pracownik(userInfo[0], userInfo[1], userInfo[2]);
+    pracownik->wypiszDoFormularza(ui->simpleDataGB, userInfo);
 
     if(userID != 0){
         pracownik->wypiszDane(this);
@@ -87,33 +88,20 @@ void GlowneOkno::on_changePasswordLink_clicked() {
 }
 
 void GlowneOkno::on_workersWorkTable_clicked(const QModelIndex &index) {
-    QStringList workersData;
-    for(int i = 0; i < index.model()->columnCount(); i++){
-        workersData << index.model()->data(index.model()->index(index.row(), i), Qt::DisplayRole).toString();
-    }
 
-    ui->workidEdit->setText(workersData[1]);
-    ui->workNameEdit->setText(workersData[2]);
-    ui->workSurnameEdit->setText(workersData[3]);
+    WorkerID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+
+    ui->workidEdit->setText(index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString());
+    ui->workNameEdit->setText(index.model()->data(index.model()->index(index.row(), 2), Qt::DisplayRole).toString());
+    ui->workSurnameEdit->setText(index.model()->data(index.model()->index(index.row(), 3), Qt::DisplayRole).toString());
 
     pracownik = new Pracownik(ui->workNameEdit->text(), ui->workSurnameEdit->text(), ui->workidEdit->text());
-    pracownik->dodaj();
+    pracownik->mojeUslugi(ui->servicesWorkTable, WorkerID);
 
-    ui->servicesWorkTable->setStyleSheet("border-image: none");
-    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
-    conn->OpenConnection();
-    tableCreator = new TableFiller(conn->getSqlDatabaseObject(), ui->servicesWorkTable, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+workersData[0]+"'"));
-    currentServices = tableCreator->executeSelect();
-    tableCreator->fillTheTable();
-    ui->servicesWorkTable->hideColumn(0);
-    conn->CloseConnection();
-    /*if(!alreadyActivated){
-        ui->addServiceWorkTable->setStyleSheet("border-image: none");
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->addServiceWorkTable, QString("SELECT uslugi_id AS ID, nazwa AS Nazwa, cena AS Cena, czas AS 'Czas wykonania', opis AS Opis FROM uslugi WHERE CONCAT(nazwa, cena, czas) LIKE '%"+ui->servicesServiceType->text()+"%'"));
-        tableCreator->fillTheTable();
-        ui->addServiceWorkTable->setColumnHidden(0,true);
+    if(!alreadyActivated){
+        Usluga::wyszukiwanie(ui->servicesServiceType->text(), ui->addServiceWorkTable);
         alreadyActivated = true;
-    }*/
+    }
 }
 
 void GlowneOkno::on_ClientsTable_Client_clicked(const QModelIndex &index) {
@@ -403,67 +391,48 @@ void GlowneOkno::on_changeCompanyInfo_clicked() {
 void GlowneOkno::on_simpleDataChange_clicked() {
     bool valid = areLineEditsValid(ui->simpleDataGB);
     if(valid){
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET uzytkownik_nazwa='"+ui->simpID->text()+"', uzytkownik_imie='"+ui->simpName->text()+"', uzytkownik_nazwisko='"+ui->simpSurname->text()+"' WHERE uzytkownik_nazwa='"+ui->simpID->text()+"'"));
-        tableCreator->executeInsertUpdateDelete();
+        pracownik = new Pracownik(ui->simpName->text(), ui->simpSurname->text(), ui->simpID->text());
+        pracownik->modyfikuj(userID);
+
         QMessageBox::information(this, "Zmiana danych osobowych", "Pomyślnie zmodyfikowano dane osobowe w bazy danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
-        TableFiller *company = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_nazwa, uzytkownik_imie, uzytkownik_nazwisko FROM uzytkownik WHERE uzytkownik_id="+QString::number(userID)));
-        QStringList companyData = company->executeSelect();
-        QList<QLineEdit*> companyList = ui->simpleDataGB->findChildren<QLineEdit*>();
-        for(int i = 0; i < companyList.length(); i++){
-            companyList[i]->setText(companyData[i]);
-        }
+
+        QStringList simpleInformation = Pracownik::pokazInfo(userID);
+        pracownik->wypiszDoFormularza(ui->simpleDataGB, simpleInformation);
     }
 }
 
 void GlowneOkno::on_changePasswordBtn_clicked() {
     bool valid = areLineEditsValid(ui->changePasswordGB) && (ui->newPass->text() == ui->oldPass->text());
     if(valid){
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET haslo=PASSWORD('"+ui->newPass->text()+"') WHERE uzytkownik_id="+QString::number(userID)));
-        tableCreator->executeInsertUpdateDelete();
-        if (tableCreator->getcountOfRows() <= 0){
-            QMessageBox::warning(this, "Zmiana hasła użytkownika", "Pomyślnie zmodyfikowano hasło użytkownika w bazie danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
-            clearControlsFromCertainGroup(ui->changePasswordGB);
-        }
+        pracownik = new Pracownik(ui->simpName->text(), ui->simpSurname->text(), ui->simpID->text());
+        pracownik->setMD5(ui->newPass->text());
+        pracownik->aktualizujHaslo(pracownik->getMD5(), userID);
+
+        QMessageBox::warning(this, "Zmiana hasła użytkownika", "Pomyślnie zmodyfikowano hasło użytkownika w bazie danych. Aby zobaczyć zmiany należy sie ponownie zalogować", QMessageBox::Ok);
+        clearControlsFromCertainGroup(ui->changePasswordGB);
     }
 }
 
 void GlowneOkno::on_addServiceWorkTable_doubleClicked(const QModelIndex &index) {
-    QString idxToAdd = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
-    QStringList currentServiceIds;
-    for(int i = 0; i < currentServices.length(); i+=5){
-        currentServiceIds.append(currentServices[i]);
-    }
-    if(currentServiceIds.contains(idxToAdd)){
+    int serviceToAdd = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    QStringList servicesForChoosenWorker = pracownik->mojeUslugi(WorkerID);
+    if(servicesForChoosenWorker.contains(QString::number(serviceToAdd))){
         QMessageBox::information(this, "Pracownik posiada wybraną kompetencję", "Wybrana usługa znajduje się już w kompetencjach pracownika i nie ma potrzeby jej dodawać. W celu usunięcia kompetencji pracownika kliknij dwukrotnie na wybraną usługę na liście usług pracownika.", QMessageBox::Ok);
     }else {
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO uzytkownik_usluga(uzytkownik_id, uslugi_id) VALUES ('"+currentid[0]+"','"+idxToAdd+"')"));
-        tableCreator->executeInsertUpdateDelete();
+        pracownik->poszerzKompetencje(WorkerID, serviceToAdd);
         QMessageBox::information(this, "Zmiana kompetencji pracownika", "Pomyślnie zmodyfikowano kompetencje pracownika w bazie danych.", QMessageBox::Ok);
-
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesWorkTable, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+currentid[0]+"'"));
-        currentServices = tableCreator->executeSelect();
-        tableCreator->fillTheTable();
-        ui->servicesWorkTable->setColumnHidden(0,true);
+        pracownik->mojeUslugi(ui->servicesWorkTable, WorkerID);
     }
 }
 
 void GlowneOkno::on_workerReservationTable_clicked(const QModelIndex &index) {
     clearWidgets(ui->hoursLayout);
-    QString currentUserID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
-
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT uzytkownik_id FROM uzytkownik WHERE uzytkownik_nazwa='"+currentUserID+"'"));
-    QStringList userIDList = tableCreator->executeSelect();
-    userID = userIDList[0].toInt();
-
-    QDate today = ui->calendarWidget->selectedDate();
-    QString todayStr = today.toString("dd.MM.yyyy");
+    int currentUser = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    WorkerID = currentUser;
+    QString todayStr = ui->calendarWidget->selectedDate().toString("dd-MM-yyyy");
     ui->choosenDate->setText(todayStr);
     QString selectedDay = giveDays();
-    if(selectedDay == "śr"){
-        selectedDay = "sr";
-    }
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("SELECT "+selectedDay+"_od, "+selectedDay+"_do FROM godziny AS g, uzytkownik AS u WHERE u.uzytkownik_id=g.uzytkownik_id AND u.uzytkownik_nazwa='"+currentUserID+"'"));
-    QStringList returnedHours = tableCreator->executeSelect();
+    QStringList returnedHours = pracownik->mojeGodzinyPracyWDanymDniu(selectedDay, WorkerID);
     generateDailySchedule(returnedHours[0], returnedHours[1]);
     ui->hoursField->setLayout(ui->hoursLayout);
 }
@@ -477,16 +446,10 @@ void GlowneOkno::on_calendarWidget_clicked(const QDate &date) {
 }
 
 void GlowneOkno::on_servicesWorkTable_doubleClicked(const QModelIndex &index) {
-    QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
-
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM uzytkownik_usluga WHERE uzytkownik_id="+currentid[0]+" AND uslugi_id="+serviceIdx+""));
-    tableCreator->executeInsertUpdateDelete();
+    int serviceToRemove = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
+    pracownik->redukujKompetencje(WorkerID, serviceToRemove);
     QMessageBox::information(this, "Zmiana kompetencji pracownika", "Pomyślnie zmodyfikowano kompetencje pracownika w bazie danych.", QMessageBox::Ok);
-
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->servicesWorkTable, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik_usluga.uzytkownik_id ='"+currentid[0]+"'"));
-    currentServices = tableCreator->executeSelect();
-    tableCreator->fillTheTable();
-    ui->servicesWorkTable->setColumnHidden(0,true);
+    pracownik->mojeUslugi(ui->servicesWorkTable, WorkerID);
 }
 
 void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
@@ -494,11 +457,7 @@ void GlowneOkno::on_serviceTable_clicked(const QModelIndex &index){
     ServiceID = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toInt();
     ui->choosenService->setText(index.model()->data(index.model()->index(index.row(), 1), Qt::DisplayRole).toString());
     ui->workerReservationSearch->setEnabled(true);
-    QString serviceIdx = index.model()->data(index.model()->index(index.row(), 0), Qt::DisplayRole).toString();
-
-    tableCreator = new TableFiller(connection->getSqlDatabaseObject(), ui->workerReservationTable, QString("SELECT u.uzytkownik_nazwa AS ID, u.uzytkownik_imie AS Imię, u.uzytkownik_nazwisko AS Nazwisko FROM uzytkownik AS u, uzytkownik_usluga AS uu WHERE u.uzytkownik_id=uu.uzytkownik_id AND uu.uslugi_id="+serviceIdx+""));
-    tableCreator->fillTheTable();
-    ui->workerReservationTable->setStyleSheet("border-image: none");
+    usluga->pracownicyDlaUslugi(ui->workerReservationTable, ServiceID);
 }
 
 void GlowneOkno::on_clientTable_clicked(const QModelIndex &index) {
@@ -508,7 +467,7 @@ void GlowneOkno::on_clientTable_clicked(const QModelIndex &index) {
 }
 
 void GlowneOkno::on_tabWidget_currentChanged(int index) {
-    userID = 0;
+    WorkerID = 0;
     ServiceID = 0;
     ClientID = 0;
 }
@@ -522,14 +481,17 @@ void GlowneOkno::chooseHourFromList(QPushButton* push) {
     if(push->whatsThis() == "1"){
         push->setStyleSheet("color: #66023C; background-color: #E887B7; border: 2px solid #66023C; font-weight: 800");
         push->setWhatsThis("0");
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("INSERT INTO wizyty(klienci_id, uslugi_id, uzytkownik_id, rezerwacja_od, rezerwacja_do, status) VALUES ('"+QString::number(ClientID)+"','"+QString::number(ServiceID)+"','"+QString::number(userID)+"', '"+dbDate+"', '"+dbDate+"', 'oczekuje')"));
-        tableCreator->executeInsertUpdateDelete();
+        rezerwacjaOd = new Data();
+        rezerwacjaOd->setData(QDateTime::fromString(dbDate, "yyyy-MM-dd hh:mm:ss"));
+        rezerwacjaDo = new Data();
+        rezerwacjaDo->setData(rezerwacjaOd->dodajCzas(1800));
+        wizyta = new Wizyta(klient, usluga, pracownik, rezerwacjaOd, rezerwacjaDo, "oczekuje");
+        VisitID = wizyta->dodaj(ClientID,ServiceID, WorkerID);
         push->setText(push->text()+" - "+ui->choosenClient->text()+" - "+ui->choosenService->text());
     }else {
         push->setWhatsThis("1");
         push->setStyleSheet("color: #0099CC; background-color: #D6F1F2; border: 2px solid #D6F1F2; font-weight: 800");
-        tableCreator = new TableFiller(connection->getSqlDatabaseObject(), QString("DELETE FROM wizyty WHERE klienci_id='"+QString::number(ClientID)+"' AND uslugi_id='"+QString::number(ServiceID)+"' AND uzytkownik_id='"+QString::number(userID)+"' AND rezerwacja_od='"+dbDate+"'"));
-        tableCreator->executeInsertUpdateDelete();
+        wizyta->usun(VisitID);
         push->setText(push->text().mid(0,8));
         ui->choosenDate->setText(push->text());
     }
@@ -587,7 +549,11 @@ void GlowneOkno::clearWidgets(QLayout *layout) {
 
 QString GlowneOkno::giveDays() {
      QString currentDay = QDate::longDayName(ui->calendarWidget->selectedDate().dayOfWeek());
-     return currentDay.mid(0,2);
+     currentDay = currentDay.mid(0,2);
+     if(currentDay == "śr"){
+         currentDay = "sr";
+     }
+     return currentDay;
 }
 
 bool GlowneOkno::areLineEditsValid(QGroupBox *gb) {

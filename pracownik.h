@@ -20,13 +20,16 @@ public:
     QString getImie() const override;
     QString getNazwisko() const override;
     QString getIdentyfikator() const;
+    QString getMD5() const;
 
     void setImie(QString imie) override;
     void setNazwisko(QString nazwisko) override;
     void setIdentyfikator(QString identyfikator);
+    void setMD5(QString md5);
 
     void wypiszDane(QWidget *widget) override;
     static QStringList pokazInfo(int user);
+    void wypiszDoFormularza(QGroupBox *gb, QStringList data);
 
     //metody zarządzające stanem danych
     int dodaj() override;
@@ -34,11 +37,18 @@ public:
     void modyfikuj(int identify) override;
     static void wyszukiwanie(QString nazwa, QTableView *tabela);
 
-    void mojeUslugi();
+    QStringList mojeUslugi(int user);
+    void mojeUslugi(QTableView *table, int user);
     void pokazGodzinyPracy(QGroupBox *gb);
+    void poszerzKompetencje(int user, int usluga);
+    void redukujKompetencje(int user, int usluga);
+    QStringList mojeGodzinyPracyWDanymDniu(QString dzien, int user);
+
+    void aktualizujHaslo(QString noweHaslo, int user);
 
 private:
     QString identyfikator;
+    QString md5;
 };
 
 #endif // PRACOWNIK_H

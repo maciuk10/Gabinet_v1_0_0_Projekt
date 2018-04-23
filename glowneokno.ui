@@ -425,7 +425,7 @@ font: 10pt &quot;Fira Sans&quot;;</string>
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="tabBarAutoHide">
      <bool>false</bool>
@@ -1024,6 +1024,9 @@ font: 10pt &quot;Fira Sans&quot;;</string>
        <property name="gridStyle">
         <enum>Qt::SolidLine</enum>
        </property>
+       <property name="sortingEnabled">
+        <bool>false</bool>
+       </property>
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
        </attribute>
@@ -1228,7 +1231,11 @@ font: 10pt &quot;Fira Sans&quot;;</string>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_18">
           <item>
-           <widget class="QLineEdit" name="serviceName"/>
+           <widget class="QLineEdit" name="serviceName">
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLineEdit" name="servicePrice">
@@ -1812,7 +1819,7 @@ font: 14pt &quot;Fira Sans&quot;;</string>
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -1862,16 +1869,6 @@ font: 14pt &quot;Fira Sans&quot;;</string>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_21">
             <item>
-             <widget class="QLabel" name="label_53">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-              <property name="text">
-               <string>ID:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QLabel" name="label_51">
               <property name="styleSheet">
                <string notr="true"/>
@@ -1891,18 +1888,28 @@ font: 14pt &quot;Fira Sans&quot;;</string>
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QLabel" name="label_53">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>ID:</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_22">
             <item>
-             <widget class="QLineEdit" name="simpID"/>
-            </item>
-            <item>
              <widget class="QLineEdit" name="simpName"/>
             </item>
             <item>
              <widget class="QLineEdit" name="simpSurname"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="simpID"/>
             </item>
            </layout>
           </item>

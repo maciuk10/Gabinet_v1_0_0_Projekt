@@ -98,6 +98,7 @@ private:
     int ClientID;
     int ServiceID;
     int WorkerID;
+    int VisitID;
     QStringList currentid;
     QStringList currentServices;
     bool alreadyActivated = false;
@@ -112,5 +113,6 @@ private:
     Klient *klient;
     Firma *firma;
     Usluga *usluga;
+    Wizyta *wizyta;
 };
 #endif // GLOWNEOKNO_H

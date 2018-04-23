@@ -29,10 +29,8 @@ public:
     void setStatus(QString status);
 
     //metody zarządzające stanem danych
-    void dodaj();
-    void usun(int id);
-    void modyfikuj();
-    void wyszukiwanie(QString nazwa);
+    int dodaj(int klient, int usluga, int user);
+    void usun(int usluga);
 
 private:
     Data *rezerwacjaOd;

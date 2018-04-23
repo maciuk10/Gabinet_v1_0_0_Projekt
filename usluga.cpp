@@ -70,3 +70,14 @@ void Usluga::wyszukiwanie(QString nazwa, QTableView *tabela) {
     tabela->hideColumn(0);
     conn->CloseConnection();
 }
+
+void Usluga::pracownicyDlaUslugi(QTableView *table, int usluga) {
+    SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    table->setStyleSheet("border-image: none");
+    TableFiller* workersForService = new TableFiller(conn->getSqlDatabaseObject(), table, QString("SELECT u.uzytkownik_id, u.uzytkownik_nazwa AS ID, u.uzytkownik_imie AS Imię, u.uzytkownik_nazwisko AS Nazwisko FROM uzytkownik AS u, uzytkownik_usluga AS uu WHERE u.uzytkownik_id=uu.uzytkownik_id AND uu.uslugi_id="+QString::number(usluga)));
+    workersForService->fillTheTable();
+    table->hideColumn(0);
+    table->hideColumn(1);
+    conn->CloseConnection();
+}

@@ -14,6 +14,10 @@ QString Pracownik::getIdentyfikator() const {
     return identyfikator;
 }
 
+QString Pracownik::getMD5() const {
+    return md5;
+}
+
 void Pracownik::setImie(QString imie) {
     this->imie = imie;
 }
@@ -24,6 +28,10 @@ void Pracownik::setNazwisko(QString nazwisko) {
 
 void Pracownik::setIdentyfikator(QString identyfikator) {
     this->identyfikator = identyfikator;
+}
+
+void Pracownik::setMD5(QString md5) {
+    this->md5 = md5;
 }
 
 void Pracownik::wypiszDane(QWidget *widget) {
@@ -43,6 +51,15 @@ QStringList Pracownik::pokazInfo(int user) {
     }
     return userData;
 }
+
+void Pracownik::wypiszDoFormularza(QGroupBox *gb, QStringList data)
+{
+    QList<QLineEdit*> workerData = gb->findChildren<QLineEdit*>();
+    for(int i = 0; i < workerData.length(); i++){
+        workerData[i]->setText(data[i]);
+    }
+}
+
 
 int Pracownik::dodaj() {
     SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
@@ -81,8 +98,23 @@ void Pracownik::wyszukiwanie(QString nazwa, QTableView* tabela) {
     conn->CloseConnection();
 }
 
-void Pracownik::mojeUslugi() {
+QStringList Pracownik::mojeUslugi(int user) {
+    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *showMyServices = new TableFiller(conn->getSqlDatabaseObject(), QString("SELECT uslugi.uslugi_id FROM uslugi, uzytkownik_usluga, uzytkownik WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik.uzytkownik_id = uzytkownik_usluga.uzytkownik_id AND uzytkownik_usluga.uzytkownik_id="+QString::number(user)));
+    QStringList currentServicesIds = showMyServices->executeSelect();
+    conn->CloseConnection();
+    return currentServicesIds;
+}
 
+void Pracownik::mojeUslugi(QTableView *table, int user) {
+    table->setStyleSheet("border-image: none");
+    SqlConnect *conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *showMyServices = new TableFiller(conn->getSqlDatabaseObject(), table, QString("SELECT uslugi.uslugi_id AS ID, uslugi.nazwa AS Nazwa, uslugi.cena AS Cena, uslugi.czas AS 'Czas wykonania', uslugi.opis AS Opis FROM uslugi, uzytkownik_usluga, uzytkownik WHERE uslugi.uslugi_id = uzytkownik_usluga.uslugi_id AND uzytkownik.uzytkownik_id = uzytkownik_usluga.uzytkownik_id AND uzytkownik_usluga.uzytkownik_id="+QString::number(user)));
+    showMyServices->fillTheTable();
+    table->hideColumn(0);
+    conn->CloseConnection();
 }
 
 void Pracownik::pokazGodzinyPracy(QGroupBox *gb) {
@@ -94,5 +126,38 @@ void Pracownik::pokazGodzinyPracy(QGroupBox *gb) {
     for(int i = 0; i < hours.length(); i++){
         hours[i]->setText(results[i]);
     }
+    conn->CloseConnection();
+}
+
+void Pracownik::poszerzKompetencje(int user, int usluga) {
+    SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *extendDuties = new TableFiller(conn->getSqlDatabaseObject(), QString("INSERT INTO uzytkownik_usluga(uzytkownik_id, uslugi_id) VALUES ('"+QString::number(user)+"','"+QString::number(usluga)+"')"));
+    extendDuties->executeInsertUpdateDelete();
+    conn->CloseConnection();
+}
+
+void Pracownik::redukujKompetencje(int user, int usluga) {
+    SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *reduceDuties = new TableFiller(conn->getSqlDatabaseObject(), QString("DELETE FROM uzytkownik_usluga WHERE uzytkownik_id="+QString::number(user)+" AND uslugi_id="+QString::number(usluga)));
+    reduceDuties->executeInsertUpdateDelete();
+    conn->CloseConnection();
+}
+
+QStringList Pracownik::mojeGodzinyPracyWDanymDniu(QString dzien, int user) {
+    SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *hoursAt = new TableFiller(conn->getSqlDatabaseObject(), QString("SELECT "+dzien+"_od, "+dzien+"_do FROM godziny AS g, uzytkownik AS u WHERE u.uzytkownik_id=g.uzytkownik_id AND u.uzytkownik_id="+QString::number(user)));
+    QStringList hours = hoursAt->executeSelect();
+    conn->CloseConnection();
+    return hours;
+}
+
+void Pracownik::aktualizujHaslo(QString noweHaslo, int user) {
+    SqlConnect* conn = new SqlConnect("localhost", "gabinet", "root", "zaq1@WSX", 9999);
+    conn->OpenConnection();
+    TableFiller *updatePassword = new TableFiller(conn->getSqlDatabaseObject(), QString("UPDATE uzytkownik SET haslo=PASSWORD('"+noweHaslo+"') WHERE uzytkownik_id="+QString::number(user)));
+    updatePassword->executeInsertUpdateDelete();
     conn->CloseConnection();
 }
