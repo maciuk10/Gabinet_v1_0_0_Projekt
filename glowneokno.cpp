@@ -8,12 +8,6 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID, SqlConnect *conn) :
 {
     ui->setupUi(this);
 
-    Data jedna = Data();
-    jedna.setData(1,5,2018, 9, 9, 5);
-    Data druga = Data();
-    druga.setData(1,5,2018, 9, 18, 30);
-    int roznica = 0;
-    roznica = druga-jedna;
     this->connection = conn;
     this->userID = userID;
     this->setDefaultWidgetFormatting();
