@@ -19,16 +19,16 @@ class ClickableLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit ClickableLabel(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    explicit ClickableLabel(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());  //konstruktor dziedziczący po QLabel
     ~ClickableLabel();
 
 signals:
-    void clicked(int value);
+    void clicked(int value); //emituje sygnał kliknięcia podczas mousePressEvent
 public slots:
-    void closeProgram(int flag);
-    void toggleTab(int tabIndex);
+    void closeProgram(int flag);    //zamyka program
+    void toggleTab(int tabIndex);   //przełącza pomiędzy zakładkami programu
 protected:
-    void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event);   //zdarzenie kliknięcia na obiekt
 private:
     Logowanie *login;
 };

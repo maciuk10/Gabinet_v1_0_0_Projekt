@@ -20,15 +20,16 @@ private:
     int port = 3306;
 
 public:
+    //przeciążone konstruktory dla różnych parametrów połączenia z bazą
     explicit SqlConnect(QString host, QString db, QString user, QString password, int port);
     explicit SqlConnect(QString host, QString db, QString user, QString password);
     explicit SqlConnect(QString db, QString user, QString password);
     ~SqlConnect();
 
-    void OpenConnection();
-    void CloseConnection();
+    void OpenConnection();  //otwarcie połączenia z bazą
+    void CloseConnection(); //zamknięcie połączenia z bazą
 
-    QSqlDatabase getSqlDatabaseObject() const;
+    QSqlDatabase getSqlDatabaseObject() const;  //zwraca aktualne połączenie z bazą danych
     QString getHostname() const;
     QString getDatabaseName() const;
     QString getUsername() const;

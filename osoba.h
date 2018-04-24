@@ -9,7 +9,7 @@ class Osoba
 public:
     explicit Osoba(QString imie, QString nazwisko);
 
-    //akcesory składowych prywatnych klasy
+    //akcesory składowych prywatnych klasy (metody czysto wirtualne przesłaniane w klasach dziedziczących)
     virtual QString getImie() const = 0;
     virtual QString getNazwisko() const = 0;
 

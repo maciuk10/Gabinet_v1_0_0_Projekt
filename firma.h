@@ -12,6 +12,7 @@ class Firma
 {
 public:
     explicit Firma(QString n, QString b, QString em, QString adr, QString kodp, QString mias, QString woje, QString kraj, QString nip);
+
     //akcesory składowych prywatnych klasy
     QString getNazwa() const;
     QString getBranza() const;

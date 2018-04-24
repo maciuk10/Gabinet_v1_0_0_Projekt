@@ -17,6 +17,7 @@ private:
 public:
     explicit Data();
 
+    //akcesory właściwości prywatnych (get/set)
     int getDzien() const;
     int getMiesiac() const;
     int getRok() const;
@@ -32,13 +33,13 @@ public:
     void setSek(int sek);
 
 
-    QDateTime getData() const;
-    QString getDataTekstowa(QString formatDaty) const;
-    void setData(QDateTime data);
-    void setData(QDate data);
-    void setData(int dzien, int miesiac, int rok, int godz, int min, int sek);
-    QDateTime dodajCzas(int s);
-    int operator -(const Data &d1);
+    QDateTime getData() const;                              //zwraca datę jako typ QDateTime
+    QString getDataTekstowa(QString formatDaty) const;      //zwraca datę w postaci tekstu zgodnego z formatowaniem
+    void setData(QDateTime data);                           //ustawia datę przekazaną jako QDateTime
+    void setData(QDate data);                               //ustawia datę przekazaną jako QDate
+    void setData(int dzien, int miesiac, int rok, int godz, int min, int sek);  //ustawia datę przekazaną jako kolejne liczby
+    QDateTime dodajCzas(int s);                             //zwiększa datę o określoną liczbę sekund
+    int operator -(const Data &d1);                         //zwraca liczbę sekund pomiędzy datami z tego samego dnia
 };
 
 #endif // DATA_H

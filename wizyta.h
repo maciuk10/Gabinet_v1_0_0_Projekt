@@ -29,8 +29,8 @@ public:
     void setStatus(QString status);
 
     //metody zarządzające stanem danych
-    int dodaj(int klient, int usluga, int user);
-    void usun(int usluga);
+    int dodaj(int klient, int usluga, int user);    //dodaje do bazy danych wizytę i zwraca id tej wizyty
+    void usun(int usluga);                          //usuwa z bazy danych daną wizytę
 
 private:
     Data *rezerwacjaOd;

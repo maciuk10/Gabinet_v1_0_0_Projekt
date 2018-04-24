@@ -20,8 +20,8 @@ public:
     ~Logowanie();
 
 private slots:
-    void on_zalogujBTN_clicked();
-    void on_anulujBTN_clicked();
+    void on_zalogujBTN_clicked(); //metoda wykonywana przy próbie zalogowania
+    void on_anulujBTN_clicked(); //metoda wykonywana przy zamykaniu programu
 private:
     Ui::Logowanie *ui;
     GlowneOkno *mainW;

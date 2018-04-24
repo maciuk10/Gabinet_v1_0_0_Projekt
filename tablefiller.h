@@ -9,14 +9,14 @@
 class TableFiller
 {
 public:
-    explicit TableFiller(QSqlDatabase db, QTableView* tableView, QString sqlCommand);
-    explicit TableFiller(QSqlDatabase db, QString sqlCommand);
-    void fillTheTable();
-    int getcountOfRows();
-    void setcountOfRows(int value);
-    bool executeInsertUpdateDelete();
-    QStringList executeSelect();
-    QSqlQueryModel* getSqlQueryModelObject() const;
+    explicit TableFiller(QSqlDatabase db, QTableView* tableView, QString sqlCommand); // konstruktor który inicjalizuje obiekty potrzebna do wykonania operacji na danych
+    explicit TableFiller(QSqlDatabase db, QString sqlCommand); //przeciążony konstruktor służący do wykonywania zapytań o dane
+    void fillTheTable(); //metoda służąca do wypełnienia tabeli przekazanej w konstruktorze
+    int getcountOfRows(); // zwraca ilość wierszy zbioru danych
+    void setcountOfRows(int value); // ustawia ilość wierszy zbioru danych
+    bool executeInsertUpdateDelete(); // modyfikuje dane i zwraca status poprawności operacji
+    QStringList executeSelect(); // zwraca zbiór danych dla konkretnych warunków
+    QSqlQueryModel* getSqlQueryModelObject() const; // zwraa model dla tabeli
 
 private:
     QSqlDatabase db;

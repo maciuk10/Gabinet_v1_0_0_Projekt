@@ -27,9 +27,9 @@ public:
     void setIdentyfikator(QString identyfikator);
     void setMD5(QString md5);
 
-    void wypiszDane(QWidget *widget, QStringList dodatkoweInfo) override;
-    static QStringList pokazInfo(int user);
-    void wypiszDoFormularza(QGroupBox *gb, QStringList data);
+    void wypiszDane(QWidget *widget, QStringList dodatkoweInfo) override; //nadpisuje metodę wirtualną z klasy osoba po której dziedziczy
+    static QStringList pokazInfo(int user); //zwraca wszystkie dane pracownika
+    void wypiszDoFormularza(QGroupBox *gb, QStringList data); //wprowadza do formularza dane pracownika
 
     //metody zarządzające stanem danych
     int dodaj() override;
@@ -37,14 +37,14 @@ public:
     void modyfikuj(int identify) override;
     static void wyszukiwanie(QString nazwa, QTableView *tabela);
 
-    QStringList mojeUslugi(int user);
-    void mojeUslugi(QTableView *table, int user);
-    void pokazGodzinyPracy(QGroupBox *gb);
-    void poszerzKompetencje(int user, int usluga);
-    void redukujKompetencje(int user, int usluga);
-    QStringList mojeGodzinyPracyWDanymDniu(QString dzien, int user);
+    QStringList mojeUslugi(int user);               //zwraca usługi wykonywane przez danego pracownika
+    void mojeUslugi(QTableView *table, int user);   //wprowadza do formularza usługi pracownika
+    void pokazGodzinyPracy(QGroupBox *gb);          //wyswietla godziny pracy w formularzu godzin
+    void poszerzKompetencje(int user, int usluga);  //dodaje usługi które może wykonywać pracownik
+    void redukujKompetencje(int user, int usluga);  //usuwa usługi z dozwolonych dla użytkownika
+    QStringList mojeGodzinyPracyWDanymDniu(QString dzien, int user);    //zwraca godziny pracy pracownika dla konkretnego dnia
 
-    void aktualizujHaslo(QString noweHaslo, int user);
+    void aktualizujHaslo(QString noweHaslo, int user); //aktualizuje haslo pracownika
 
 private:
     QString identyfikator;

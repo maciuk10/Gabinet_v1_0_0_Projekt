@@ -28,7 +28,7 @@ public:
     void usun(int id);
     void modyfikuj(int id);
     static void wyszukiwanie(QString nazwa, QTableView *tabela);
-    void pracownicyDlaUslugi(QTableView *table, int usluga);
+    void pracownicyDlaUslugi(QTableView *table, int usluga);    //wprowadza do formularza pracowników którzy mogą wykonywać daną usługę
 
 private:
     QString nazwa;
