@@ -2,8 +2,9 @@
 
 Klient::Klient(QString imie, QString nazwisko, QString email, QString telefon,
 QString ulica, QString numerUlicy, QString kodPocztowy, QString miasto):
-Osoba(imie, nazwisko), email(email), telefon(telefon), ulica(ulica),
-numerUlicy(numerUlicy), kodPocztowy(kodPocztowy), miasto(miasto) {}
+    Osoba(imie, nazwisko), email(email), telefon(telefon), ulica(ulica),
+    numerUlicy(numerUlicy), kodPocztowy(kodPocztowy), miasto(miasto) {}
+
 
 QString Klient::getImie() const {
     return imie;

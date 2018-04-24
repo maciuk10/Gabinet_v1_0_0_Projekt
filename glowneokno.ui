@@ -585,8 +585,17 @@ font: 10pt &quot;Fira Sans&quot;;</string>
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
            <property name="text">
             <string>Szukaj</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -625,8 +634,17 @@ font: 10pt &quot;Fira Sans&quot;;</string>
          </item>
          <item>
           <widget class="QPushButton" name="reservationClientSearch">
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
            <property name="text">
             <string>Szukaj</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -668,8 +686,17 @@ font: 10pt &quot;Fira Sans&quot;;</string>
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
            <property name="text">
             <string>Szukaj</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>

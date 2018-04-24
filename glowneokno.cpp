@@ -12,11 +12,9 @@ GlowneOkno::GlowneOkno(QWidget *parent, int userID, SqlConnect *conn) :
     this->userID = userID;
     this->setDefaultWidgetFormatting();
     this->prepareCharts();
-
     QStringList userInfo = Pracownik::pokazInfo(userID);
     pracownik = new Pracownik(userInfo[0], userInfo[1], userInfo[2]);
     pracownik->wypiszDoFormularza(ui->simpleDataGB, userInfo);
-
     if(userID != 0){
         przedstawPracownik = new Pracownik(userInfo[0], userInfo[1], userInfo[2]);
         QStringList dodatkoweInfo;
@@ -98,7 +96,9 @@ void GlowneOkno::on_workersWorkTable_clicked(const QModelIndex &index) {
     ui->workNameEdit->setText(index.model()->data(index.model()->index(index.row(), 2), Qt::DisplayRole).toString());
     ui->workSurnameEdit->setText(index.model()->data(index.model()->index(index.row(), 3), Qt::DisplayRole).toString());
 
-    pracownik = new Pracownik(ui->workNameEdit->text(), ui->workSurnameEdit->text(), ui->workidEdit->text());
+    pracownik->setImie(ui->workNameEdit->text());
+    pracownik->setNazwisko(ui->workSurnameEdit->text());
+    pracownik->setIdentyfikator(ui->workidEdit->text());
     pracownik->mojeUslugi(ui->servicesWorkTable, WorkerID);
 
     if(!alreadyActivated){
@@ -182,7 +182,9 @@ void GlowneOkno::on_workersWorkersTable_clicked(const QModelIndex &index) {
         ui->removeWorkerBtn->setEnabled(true);
     }
     if(WorkerID != 0){
-        pracownik = new Pracownik(ui->workerNameEdit->text(),ui->workerSurnameEdit->text(), ui->workerIDEdit->text());
+        pracownik->setImie(ui->workerNameEdit->text());
+        pracownik->setNazwisko(ui->workerSurnameEdit->text());
+        pracownik->setIdentyfikator(ui->workerIDEdit->text());
         pracownik->pokazGodzinyPracy(ui->workerHours);
         this->clearControlsFromCertainGroup(ui->hoursSchema);
     }

@@ -12,7 +12,6 @@ class Klient : public Osoba
 {
 public:
     explicit Klient(QString imie, QString nazwisko, QString email, QString telefon, QString ulica, QString numerUlicy, QString kodPocztowy, QString miasto);
-
     //akcesory składowych prywatnych klasy
     QString getImie() const override;
     QString getNazwisko() const override;
